@@ -42,6 +42,24 @@
 </head>
 <body class="min-h-screen flex flex-col bg-darkBg text-gray-200">
 
+    <!-- LOGIN FIREBASE INTEGRADO EN EL HTML ORIGINAL -->
+    <section id="authGate" class="fixed inset-0 z-[100] flex items-center justify-center bg-black px-4 py-8">
+      <div class="w-full max-w-md rounded-2xl border border-darkBorder bg-darkCard p-7 shadow-2xl">
+        <div class="mb-6 flex items-center gap-3">
+          <div class="rounded-xl border border-blue-500/30 bg-blue-600/20 p-3 text-blue-400"><i class="fa-solid fa-robot text-2xl"></i></div>
+          <div><h1 class="text-xl font-bold text-white">Movill Inventario</h1><p class="text-xs text-gray-400">Acceso seguro</p></div>
+        </div>
+        <form id="loginForm" class="space-y-4">
+          <div><label for="loginEmail" class="mb-1 block text-xs text-gray-400">Correo electrónico</label><input id="loginEmail" type="email" autocomplete="username" required class="w-full rounded-lg border border-darkBorder bg-black p-3 text-sm text-white outline-none focus:border-blue-500" placeholder="usuario@empresa.com"></div>
+          <div><label for="loginPassword" class="mb-1 block text-xs text-gray-400">Contraseña</label><input id="loginPassword" type="password" autocomplete="current-password" required class="w-full rounded-lg border border-darkBorder bg-black p-3 text-sm text-white outline-none focus:border-blue-500" placeholder="Tu contraseña"></div>
+          <button id="loginButton" type="submit" class="w-full rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-500 disabled:cursor-wait disabled:opacity-60">Iniciar sesión</button>
+        </form>
+        <p id="authMessage" role="status" class="mt-4 hidden whitespace-pre-line rounded-lg border border-rose-900 bg-rose-950/40 p-3 text-xs text-rose-200"></p>
+        <p class="mt-5 text-[11px] leading-relaxed text-gray-500">Ingresa con la cuenta creada en Firebase Authentication y autorizada en la colección usuarios.</p>
+      </div>
+    </section>
+
+
     <!-- Header Principal -->
     <header class="border-b border-darkBorder bg-darkCard/95 sticky top-0 z-30 backdrop-blur-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -81,6 +99,11 @@
                         <span>Config & Estatus</span>
                     </button>
                 </nav>
+                <div class="flex items-center gap-2 border-l border-darkBorder pl-2">
+                    <span id="authUserEmail" class="hidden md:inline text-[10px] text-gray-400"></span>
+                    <span id="authUserRole" class="hidden md:inline text-[10px] text-blue-400"></span>
+                    <button id="logoutButton" type="button" class="hidden px-2 py-2 text-xs text-rose-300 border border-rose-900/60 rounded-lg hover:bg-rose-950/40" title="Cerrar sesión"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+                </div>
                 <div class="flex items-center space-x-1 border-l border-darkBorder pl-2">
                     <button onclick="openPersonnelModal()" class="px-3 py-2 text-xs font-medium bg-darkSubcard hover:bg-gray-900 text-gray-200 border border-darkBorder rounded-lg flex items-center gap-1.5 transition">
                         <i class="fa-solid fa-users text-blue-500"></i> <span class="hidden sm:inline">Personal</span>
@@ -2408,5 +2431,6 @@
             return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
     </script>
+    <script type="module" src="js/firebase/auth-gate.js"></script>
 </body>
 </html>
