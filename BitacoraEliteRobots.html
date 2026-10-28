@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pendientes Controles, Inventario & Garantías - Pro</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#000000',
+                        darkCard: '#0a0a0c',
+                        darkSubcard: '#12131a',
+                        darkBorder: '#1f2433',
+                        accentBlue: '#2563eb',
+                        accentGreen: '#10b981',
+                        accentAmber: '#f59e0b',
+                        accentRose: '#ef4444',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #000000; color: #f3f4f6; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #000000; }
+        ::-webkit-scrollbar-thumb { background: #1a1e29; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #272d3d; }
+        .task-color-bar { width: 5px; height: 100%; position: absolute; left: 0; top: 0; border-top-left-radius: 0.5rem; border-bottom-left-radius: 0.5rem; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-darkBg text-gray-200">
+
+    <!-- Header Principal -->
+    <header class="border-b border-darkBorder bg-darkCard/95 sticky top-0 z-30 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-600/20 text-blue-500 rounded-lg border border-blue-500/30">
+                    <i class="fa-solid fa-robot text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-white tracking-wide flex items-center gap-2">
+                        PENDIENTES CONTROLES
+                        <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-800/60">OLED Pro v6.0 (Hosting Ready)</span>
+                    </h1>
+                    <p class="text-xs text-gray-400">Gestión por Estaciones, Inventario, Demos y Garantías</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <nav class="hidden lg:flex items-center space-x-1">
+                    <button onclick="switchTab('tasks')" id="tabBtnTasks" class="px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition bg-blue-600 text-white shadow-lg shadow-blue-600/20">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Proyectos & Tareas</span>
+                    </button>
+                    <button onclick="switchTab('inventory')" id="tabBtnInventory" class="px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition text-gray-400 hover:text-white hover:bg-darkSubcard">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                        <span>Inventario Cobots</span>
+                    </button>
+                    <button onclick="switchTab('demos')" id="tabBtnDemos" class="px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition text-gray-400 hover:text-white hover:bg-darkSubcard">
+                        <i class="fa-solid fa-handshake-angle"></i>
+                        <span>Demos & Préstamos</span>
+                    </button>
+                    <button onclick="switchTab('warranties')" id="tabBtnWarranties" class="px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition text-gray-400 hover:text-white hover:bg-darkSubcard">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i>
+                        <span>Garantías & Falla</span>
+                    </button>
+                    <button onclick="switchTab('series')" id="tabBtnSeries" class="px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition text-gray-400 hover:text-white hover:bg-darkSubcard">
+                        <i class="fa-solid fa-sliders"></i>
+                        <span>Config & Estatus</span>
+                    </button>
+                </nav>
+                <button onclick="openPersonnelModal()" class="px-3 py-2 text-xs font-medium bg-darkSubcard hover:bg-gray-900 text-gray-200 border border-darkBorder rounded-lg flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-users text-blue-500"></i> <span class="hidden sm:inline">Personal</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navegación móvil -->
+    <div class="lg:hidden flex items-center justify-around bg-darkCard border-b border-darkBorder p-2 text-xs overflow-x-auto">
+        <button onclick="switchTab('tasks')" id="tabBtnTasksMobile" class="px-2 py-1.5 rounded text-blue-500 font-bold">Tareas</button>
+        <button onclick="switchTab('inventory')" id="tabBtnInventoryMobile" class="px-2 py-1.5 rounded text-gray-400">Inventario</button>
+        <button onclick="switchTab('demos')" id="tabBtnDemosMobile" class="px-2 py-1.5 rounded text-gray-400">Demos</button>
+        <button onclick="switchTab('warranties')" id="tabBtnWarrantiesMobile" class="px-2 py-1.5 rounded text-gray-400">Garantías</button>
+        <button onclick="switchTab('series')" id="tabBtnSeriesMobile" class="px-2 py-1.5 rounded text-gray-400">Config</button>
+    </div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ==================== PESTAÑA 1: PROYECTOS & TAREAS ==================== -->
+        <section id="viewTasks" class="space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-darkCard p-4 rounded-xl border border-darkBorder shadow-lg">
+                <div class="flex items-center space-x-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0" id="projectTabsList"></div>
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end flex-wrap gap-y-2">
+                    <button onclick="openModalProject()" class="px-3 py-2 text-xs font-medium bg-darkSubcard hover:bg-gray-900 text-gray-200 border border-darkBorder rounded-lg flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-plus text-blue-500"></i> Proyecto
+                    </button>
+                    <button onclick="openModalFolder()" class="px-3 py-2 text-xs font-medium bg-darkSubcard hover:bg-gray-900 text-gray-200 border border-darkBorder rounded-lg flex items-center gap-1.5 transition">
+                        <i class="fa-solid fa-folder-plus text-amber-500"></i> Estación
+                    </button>
+                    <button onclick="openModalTask()" class="px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1.5 shadow-md transition">
+                        <i class="fa-solid fa-square-plus"></i> Nueva Tarea
+                    </button>
+                </div>
+            </div>
+
+            <div id="projectHeader" class="bg-darkCard p-5 rounded-xl border border-darkBorder flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"></div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-darkSubcard/60 p-3 rounded-lg border border-darkBorder">
+                <div class="relative w-full sm:w-72">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="globalSearchTask" oninput="renderProjectsAndTasks()" placeholder="Buscar tarea, responsable..." class="w-full bg-darkCard border border-darkBorder rounded-lg pl-9 pr-3 py-1.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end space-x-4 w-full sm:w-auto">
+                    <div class="flex items-center space-x-2 text-xs text-gray-400">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>Estatus:</span>
+                        <select id="filterStatus" onchange="renderProjectsAndTasks()" class="bg-darkCard border border-darkBorder rounded px-2 py-1 text-gray-200 focus:outline-none text-xs">
+                            <option value="ALL">Todos</option>
+                        </select>
+                    </div>
+                    <span id="taskStatsCounter" class="text-xs text-gray-400">0 Tareas</span>
+                </div>
+            </div>
+
+            <div id="foldersContainer" class="space-y-6"></div>
+        </section>
+
+        <!-- ==================== PESTAÑA 2: INVENTARIO DE ROBOTS ==================== -->
+        <section id="viewInventory" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-darkCard p-4 rounded-xl border border-darkBorder">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-boxes-stacked text-blue-500"></i> Estatus & Inventario de Cobots
+                    </h2>
+                    <p class="text-xs text-gray-400">Control estricto separado por Modelo y Número de Serie (S/N) con lógica FIFO</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
+                    <input type="text" id="searchRobot" oninput="renderInventory()" placeholder="Buscar S/N, Modelo, Factura..." class="bg-darkSubcard border border-darkBorder rounded-lg px-3 py-2 text-xs text-gray-200 focus:outline-none focus:border-blue-600">
+                    
+                    <select id="sortRobotBy" onchange="renderInventory()" class="bg-darkSubcard border border-darkBorder rounded-lg px-2 py-2 text-xs text-gray-200 focus:outline-none">
+                        <option value="RECEIPT_ASC">Orden: Más Antiguos en Llegar (FIFO)</option>
+                        <option value="RECEIPT_DESC">Orden: Más Recientes en Llegar</option>
+                        <option value="MFG_ASC">Orden: Fecha Fabricación</option>
+                        <option value="SN">Orden por S/N</option>
+                    </select>
+
+                    <select id="filterRobotSeries" onchange="renderInventory()" class="bg-darkSubcard border border-darkBorder rounded-lg px-2 py-2 text-xs text-gray-200 focus:outline-none">
+                        <option value="ALL">Todas las Series</option>
+                    </select>
+
+                    <select id="filterRobotStatus" onchange="renderInventory()" class="bg-darkSubcard border border-darkBorder rounded-lg px-2 py-2 text-xs text-gray-200 focus:outline-none">
+                        <option value="ALL">Todos los Estados</option>
+                    </select>
+
+                    <button onclick="openModalRobot()" class="px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Registrar Cobot
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-blue-950/30 border border-blue-800/60 p-3 rounded-lg text-xs text-blue-300 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-circle-info text-blue-400 text-sm"></i>
+                    <span><strong>Control FIFO Activo:</strong> Al realizar una venta o asignación, se sugiere primero el equipo con mayor antigüedad en almacén.</span>
+                </div>
+            </div>
+
+            <div id="robotsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ==================== PESTAÑA 3: DEMOS & PRÉSTAMOS ==================== -->
+        <section id="viewDemos" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-darkCard p-4 rounded-xl border border-darkBorder">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-handshake-angle text-blue-500"></i> Control de Demos & Préstamos a Clientes
+                    </h2>
+                    <p class="text-xs text-gray-400">Historial de equipos vinculados con previsualización ilimitada de archivos</p>
+                </div>
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button onclick="openModalDemo()" class="px-3 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Registrar Préstamo / Demo
+                    </button>
+                </div>
+            </div>
+
+            <div id="demosGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ==================== PESTAÑA 4: GARANTÍAS & DESCOMPUESTOS ==================== -->
+        <section id="viewWarranties" class="hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-darkCard p-4 rounded-xl border border-darkBorder">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Control de Garantías & Equipos Descompuestos
+                    </h2>
+                    <p class="text-xs text-gray-400">Registro de fallas, diagnósticos y evidencias universales en previsualización directa</p>
+                </div>
+                <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+                    <button onclick="openModalWarranty()" class="px-3 py-2 text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white rounded-lg flex items-center gap-1 shadow-md">
+                        <i class="fa-solid fa-plus"></i> Registrar Falla / Garantía
+                    </button>
+                </div>
+            </div>
+
+            <div id="warrantiesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ==================== PESTAÑA 5: CONFIG & ESTATUS ==================== -->
+        <section id="viewSeries" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Series -->
+                <div class="bg-darkCard p-6 rounded-xl border border-darkBorder">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-md font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-blue-500"></i> Edición de Series de Robots
+                            </h2>
+                            <p class="text-xs text-gray-400">Nomenclaturas (EC, CS, etc.)</p>
+                        </div>
+                        <button onclick="openModalSeries()" class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Nueva Serie
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-300">
+                            <thead class="bg-darkSubcard uppercase text-gray-400 border-b border-darkBorder">
+                                <tr>
+                                    <th class="p-2.5">Código</th>
+                                    <th class="p-2.5">Nombre</th>
+                                    <th class="p-2.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="seriesTableBody" class="divide-y divide-darkBorder"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Estatus Generales / Inventario -->
+                <div class="bg-darkCard p-6 rounded-xl border border-darkBorder">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-md font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-flag text-amber-500"></i> Estatus de Inventario / Tareas
+                            </h2>
+                            <p class="text-xs text-gray-400">Personaliza estados operacionales</p>
+                        </div>
+                        <button onclick="openModalStatus()" class="px-3 py-1.5 text-xs bg-amber-600 hover:bg-amber-500 text-white rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Nuevo Estatus
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-300">
+                            <thead class="bg-darkSubcard uppercase text-gray-400 border-b border-darkBorder">
+                                <tr>
+                                    <th class="p-2.5">Estatus</th>
+                                    <th class="p-2.5">Color</th>
+                                    <th class="p-2.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="statusTableBody" class="divide-y divide-darkBorder"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Estatus de Préstamos / Demos -->
+                <div class="bg-darkCard p-6 rounded-xl border border-darkBorder">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-md font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-handshake text-blue-500"></i> Estatus de Préstamos / Demos
+                            </h2>
+                            <p class="text-xs text-gray-400">Estados para asignación de equipos</p>
+                        </div>
+                        <button onclick="openModalDemoStatus()" class="px-3 py-1.5 text-xs bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Nuevo Estatus Préstamo
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-300">
+                            <thead class="bg-darkSubcard uppercase text-gray-400 border-b border-darkBorder">
+                                <tr>
+                                    <th class="p-2.5">Estatus Préstamo</th>
+                                    <th class="p-2.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="demoStatusTableBody" class="divide-y divide-darkBorder"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Estatus de Garantías -->
+                <div class="bg-darkCard p-6 rounded-xl border border-darkBorder">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <h2 class="text-md font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-500"></i> Estatus de Garantías / Falla
+                            </h2>
+                            <p class="text-xs text-gray-400">Estados para reportes de servicio</p>
+                        </div>
+                        <button onclick="openModalWarrantyStatus()" class="px-3 py-1.5 text-xs bg-rose-600 hover:bg-rose-700 text-white rounded-lg flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Nuevo Estatus Garantía
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-gray-300">
+                            <thead class="bg-darkSubcard uppercase text-gray-400 border-b border-darkBorder">
+                                <tr>
+                                    <th class="p-2.5">Estatus Garantía</th>
+                                    <th class="p-2.5 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="warrantyStatusTableBody" class="divide-y divide-darkBorder"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== MODALES ==================== -->
+
+    <!-- Modal Personal -->
+    <div id="modalPersonnel" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Gestionar Personal / Ingenieros</span>
+                <button onclick="closeModal('modalPersonnel')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <div class="space-y-4">
+                <div class="flex gap-2">
+                    <input type="text" id="newEngineerInput" placeholder="Nombre completo..." class="flex-1 bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    <button onclick="addEngineer()" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Agregar</button>
+                </div>
+                <div id="engineerListContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
+            </div>
+            <div class="flex justify-end pt-4">
+                <button type="button" onclick="closeModal('modalPersonnel')" class="px-4 py-2 text-xs bg-darkSubcard hover:bg-gray-900 text-gray-200 border border-darkBorder rounded-lg">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Proyecto -->
+    <div id="modalProject" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl my-8">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span id="modalProjectTitle">Nuevo Proyecto</span>
+                <button onclick="closeModal('modalProject')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formProject" onsubmit="saveProject(event)" class="space-y-4">
+                <input type="hidden" id="projId">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre del Proyecto / Marca *</label>
+                    <input type="text" id="projName" required placeholder="Ej: Elite Robots" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Logo del Proyecto (Imagen Local)</label>
+                    <input type="file" id="projLogoFile" accept="image/*" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2 text-xs text-gray-300">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Responsables del Proyecto</label>
+                    <div id="projAssigneesCheckboxes" class="space-y-1.5 max-h-32 overflow-y-auto bg-darkSubcard p-2.5 rounded-lg border border-darkBorder"></div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Descripción / Planta</label>
+                    <textarea id="projDesc" rows="2" placeholder="Notas breves..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalProject')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar Proyecto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Estación -->
+    <div id="modalFolder" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Nueva Estación / Carpeta</span>
+                <button onclick="closeModal('modalFolder')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formFolder" onsubmit="saveFolder(event)" class="space-y-4">
+                <input type="hidden" id="folderId">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre de la Estación / Área *</label>
+                    <input type="text" id="folderName" required placeholder="Ej: Estación 1 - Paletizado" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Ubicación / Celda de Trabajo</label>
+                    <input type="text" id="folderLocation" placeholder="Ej: Nave B, Línea 3" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalFolder')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg shadow">Guardar Estación</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Tarea -->
+    <div id="modalTask" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-lg w-full p-6 shadow-2xl my-8">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span id="modalTaskTitle">Nueva Tarea de Control</span>
+                <button onclick="closeModal('modalTask')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formTask" onsubmit="saveTask(event)" class="space-y-4">
+                <input type="hidden" id="taskId">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Estación / Carpeta *</label>
+                    <select id="taskFolderId" required class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Título del Pendiente *</label>
+                    <input type="text" id="taskTitle" required placeholder="Ej: Cableado I/O PLC" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Estatus *</label>
+                        <select id="taskStatus" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Color de Etiqueta</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="color" id="taskColor" value="#2563eb" class="h-9 w-12 bg-darkSubcard border border-darkBorder rounded cursor-pointer p-0.5">
+                            <span class="text-[10px] text-gray-400">Distintivo</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Responsables Asignados</label>
+                    <div id="taskAssigneesCheckboxes" class="space-y-1.5 max-h-32 overflow-y-auto bg-darkSubcard p-2.5 rounded-lg border border-darkBorder"></div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Vincular Robots (por Modelo y S/N)</label>
+                    <div id="taskRobotsCheckboxes" class="space-y-1.5 max-h-32 overflow-y-auto bg-darkSubcard p-2.5 rounded-lg border border-darkBorder"></div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Descripción / Detalles Técnicos</label>
+                    <textarea id="taskDesc" rows="3" placeholder="Puntos a revisar..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Adjuntar Archivos / Fotos (Múltiples formatos universales)</label>
+                    <input type="file" id="taskAttachmentFiles" multiple class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2 text-xs text-gray-300">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalTask')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Robot / Componente -->
+    <div id="modalRobot" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-lg w-full p-6 shadow-2xl my-8">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span id="modalRobotTitle">Registrar Cobot / Componente</span>
+                <button onclick="closeModal('modalRobot')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formRobot" onsubmit="saveRobot(event)" class="space-y-4">
+                <input type="hidden" id="robotId">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Modelo exacto *</label>
+                        <input type="text" id="robotModel" required placeholder="Ej: EC66, CS612" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Número de Serie (S/N) *</label>
+                        <input type="text" id="robotSn" required placeholder="Ej: EC66-2023-99" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Serie / Familia *</label>
+                        <select id="robotSeriesCode" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Estatus Operativo / Comercial *</label>
+                        <select id="robotStatus" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 bg-darkSubcard p-3 rounded-lg border border-darkBorder">
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-300 mb-1"><i class="fa-solid fa-industry text-blue-400 mr-1"></i>Fecha Fabricación</label>
+                        <input type="date" id="robotMfgDate" class="w-full bg-black border border-darkBorder rounded-lg p-2 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-semibold text-gray-300 mb-1"><i class="fa-solid fa-truck-ramp-box text-amber-400 mr-1"></i>Fecha Recepción / Llegada</label>
+                        <input type="date" id="robotArrivalDate" class="w-full bg-black border border-darkBorder rounded-lg p-2 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">No. de Factura / Prefactura</label>
+                        <input type="text" id="robotInvoice" placeholder="Ej: FAC-2026-984" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Ubicación / Planta</label>
+                        <input type="text" id="robotLocation" placeholder="Ej: Planta 2, Almacén" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+
+                <div class="bg-darkSubcard p-3 rounded-lg border border-darkBorder space-y-2">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-bold text-gray-200"><i class="fa-solid fa-vial-circle-check text-emerald-400 mr-1"></i> Pruebas Iniciales (Checklist)</label>
+                        <button type="button" onclick="addNewTestCheckitem()" class="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1"><i class="fa-solid fa-plus"></i> Añadir Prueba</button>
+                    </div>
+                    <div id="testChecklistContainer" class="space-y-1.5"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Evidencias / Fotos / Archivos (Múltiples formatos)</label>
+                    <input type="file" id="robotPhotoFiles" multiple class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2 text-xs text-gray-300">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Notas de Control & Diagnóstico</label>
+                    <textarea id="robotNotes" rows="2" placeholder="Firmware, detalles..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalRobot')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar Registro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Demo / Préstamo -->
+    <div id="modalDemo" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-lg w-full p-6 shadow-2xl my-8">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span id="modalDemoTitle">Registrar Préstamo / Demo</span>
+                <button onclick="closeModal('modalDemo')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formDemo" onsubmit="saveDemo(event)" class="space-y-4">
+                <input type="hidden" id="demoId">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Vincular Equipo (Modelo + S/N)</label>
+                        <select id="demoRobotSelect" onchange="onDemoRobotSelectChange()" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                            <option value="">-- Seleccionar de Inventario --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Descripción del Equipo / Accesorio *</label>
+                        <input type="text" id="demoItem" required placeholder="Ej: Cobot CS612" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Empresa Destino *</label>
+                        <input type="text" id="demoCompany" required placeholder="Ej: Automotriz S.A." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Estado del Préstamo *</label>
+                        <select id="demoStatus" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Fecha de Salida *</label>
+                        <input type="date" id="demoDateOut" required class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Fecha Estimada Retorno</label>
+                        <input type="date" id="demoDateReturn" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Responsables / Ingenieros</label>
+                    <div id="demoAssigneesCheckboxes" class="space-y-1.5 max-h-28 overflow-y-auto bg-darkSubcard p-2.5 rounded-lg border border-darkBorder"></div>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Archivos y Fotos de Estado al Salir (Múltiples)</label>
+                    <input type="file" id="demoPhotoFiles" multiple class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2 text-xs text-gray-300">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Notas / Observaciones</label>
+                    <textarea id="demoNotes" rows="2" placeholder="Accesorios..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalDemo')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar Préstamo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Garantía / Falla -->
+    <div id="modalWarranty" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-lg w-full p-6 shadow-2xl my-8">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span id="modalWarrantyTitle">Registrar Falla / Entrada a Garantía</span>
+                <button onclick="closeModal('modalWarranty')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formWarranty" onsubmit="saveWarranty(event)" class="space-y-4">
+                <input type="hidden" id="warrantyId">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Número de Reporte / Caso *</label>
+                        <input type="text" id="warrantyReportNo" required placeholder="Ej: REP-GAR-2026-01" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Vincular Equipo (Modelo + S/N) *</label>
+                        <select id="warrantyRobotSn" required class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                            <option value="">-- Seleccionar Cobot --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Quién realizó el reporte *</label>
+                        <select id="warrantyReporter" required class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Estatus del Reporte *</label>
+                        <select id="warrantyStatus" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Fecha de Ingreso / Falla *</label>
+                        <input type="date" id="warrantyDate" required class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-400 mb-1">Prioridad Técnico-Operativa</label>
+                        <select id="warrantyPriority" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                            <option value="Alta / Crítica">Alta / Crítica</option>
+                            <option value="Media">Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Razón / Diagnóstico Inicial de Falla *</label>
+                    <textarea id="warrantyReason" required rows="3" placeholder="Describe detalladamente por qué razón entró en garantía..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Archivos y Fotos de Evidencia (Múltiples formatos)</label>
+                    <input type="file" id="warrantyFiles" multiple class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2 text-xs text-gray-300">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalWarranty')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg shadow">Guardar Reporte</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Series -->
+    <div id="modalSeries" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Guardar Serie de Robot</span>
+                <button onclick="closeModal('modalSeries')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formSeries" onsubmit="saveSeries(event)" class="space-y-4">
+                <input type="hidden" id="seriesOriginalCode">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Código de Serie (Siglas) *</label>
+                    <input type="text" id="seriesCode" required placeholder="Ej: EC" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white uppercase focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre Real / Significado *</label>
+                    <input type="text" id="seriesName" required placeholder="Ej: Elite Cobot" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Descripción</label>
+                    <textarea id="seriesDesc" rows="2" placeholder="Detalles..." class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalSeries')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar Serie</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Estatus General -->
+    <div id="modalStatus" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Gestionar Estatus Inventario/Tareas</span>
+                <button onclick="closeModal('modalStatus')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formStatus" onsubmit="saveStatusCustom(event)" class="space-y-4">
+                <input type="hidden" id="statusOriginalName">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre del Estatus *</label>
+                    <input type="text" id="statusNameInput" required placeholder="Ej: Vendido, Revisión" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Color del Estatus</label>
+                    <div class="flex items-center space-x-3">
+                        <input type="color" id="statusColorInput" value="#f59e0b" class="h-9 w-12 bg-darkSubcard border border-darkBorder rounded cursor-pointer p-0.5">
+                        <span class="text-[11px] text-gray-400">Tono indicador</span>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalStatus')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-amber-600 hover:bg-amber-500 text-white font-medium rounded-lg shadow">Guardar Estatus</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Estatus Préstamo -->
+    <div id="modalDemoStatus" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Gestionar Estatus de Préstamo</span>
+                <button onclick="closeModal('modalDemoStatus')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formDemoStatus" onsubmit="saveDemoStatusCustom(event)" class="space-y-4">
+                <input type="hidden" id="demoStatusOriginalName">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre del Estatus de Préstamo *</label>
+                    <input type="text" id="demoStatusNameInput" required placeholder="Ej: En Ruta, Préstamo Especial" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalDemoStatus')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Estatus Garantía -->
+    <div id="modalWarrantyStatus" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-md w-full p-6 shadow-2xl">
+            <h3 class="text-md font-bold text-white mb-4 flex items-center justify-between">
+                <span>Gestionar Estatus de Garantía</span>
+                <button onclick="closeModal('modalWarrantyStatus')" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </h3>
+            <form id="formWarrantyStatus" onsubmit="saveWarrantyStatusCustom(event)" class="space-y-4">
+                <input type="hidden" id="warrantyStatusOriginalName">
+                <div>
+                    <label class="block text-xs text-gray-400 mb-1">Nombre del Estatus de Garantía *</label>
+                    <input type="text" id="warrantyStatusNameInput" required placeholder="Ej: En Análisis con Proveedor" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                </div>
+                <div class="flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('modalWarrantyStatus')" class="px-4 py-2 text-xs text-gray-400 hover:bg-darkSubcard rounded-lg">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 text-xs bg-rose-600 hover:bg-rose-700 text-white font-medium rounded-lg shadow">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Visor Galería Multi-Archivo Universal -->
+    <div id="modalGalleryViewer" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-darkCard border border-darkBorder rounded-xl max-w-5xl w-full h-[85vh] flex flex-col p-4 shadow-2xl">
+            <div class="flex justify-between items-center pb-3 border-b border-darkBorder">
+                <h4 id="galleryTitle" class="text-sm font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-blue-500"></i> Previsualizador Universal de Archivos
+                </h4>
+                <button onclick="closeModal('modalGalleryViewer')" class="text-gray-400 hover:text-white px-2 text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="galleryContentContainer" class="flex-1 overflow-auto mt-4 p-2 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        </div>
+    </div>
+
+    <!-- Logic JS -->
+    <script>
+        const STORAGE_KEY = 'pendientes_controles_v6_0';
+
+        let appData = loadData();
+
+        function loadData() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (!stored) {
+                return getDefaultData();
+            }
+            try { 
+                const data = JSON.parse(stored);
+                if (!data.engineers || !data.projects || !data.tasks || !data.robots || !data.series || !data.statuses || !data.demos || !data.warranties || !data.demoStatuses || !data.warrantyStatuses) {
+                    return getDefaultData(); 
+                }
+                return data;
+            } catch(e) { 
+                localStorage.removeItem(STORAGE_KEY);
+                return getDefaultData(); 
+            }
+        }
+
+        function getDefaultData() {
+            return {
+                currentProjectId: 'p1',
+                engineers: ['Ing. David Espinoza', 'Ing. Manuel Ibarra', 'Ing. Iván Martínez'],
+                statuses: [
+                    { name: 'Pendiente', color: '#f59e0b' },
+                    { name: 'En Proceso', color: '#2563eb' },
+                    { name: 'Completado', color: '#10b981' },
+                    { name: 'Bloqueado', color: '#ef4444' },
+                    { name: 'Falta de Material', color: '#8b5cf6' },
+                    { name: 'Operativo', color: '#10b981' },
+                    { name: 'En Garantía', color: '#ef4444' },
+                    { name: 'Descompuesto', color: '#dc2626' },
+                    { name: 'Fuera de Servicio', color: '#6b7280' },
+                    { name: 'Vendido', color: '#3b82f6' },
+                    { name: 'Enviado a China', color: '#ec4899' }
+                ],
+                demoStatuses: [
+                    'En Préstamo (Demo Activo)',
+                    'Retornado a Base',
+                    'En Tránsito / Ruta'
+                ],
+                warrantyStatuses: [
+                    'En Garantía (En Evaluación)',
+                    'Enviado a Fábrica/China',
+                    'Espera de Refacciones',
+                    'Reparado / Concluido',
+                    'Reemplazo Entregado'
+                ],
+                projects: [
+                    { id: 'p1', name: 'Elite Robots', logo: '', desc: 'Sistemas con cobots Elite EC/CS', assignees: ['Ing. David Espinoza'] },
+                    { id: 'p2', name: 'Mission Robot', logo: '', desc: 'Plataforma AMR & Logística', assignees: ['Ing. Manuel Ibarra'] }
+                ],
+                folders: [
+                    { id: 'f1', projectId: 'p1', name: 'Estación 1 - Paletizado', location: 'Nave A', collapsed: false },
+                    { id: 'f2', projectId: 'p1', name: 'Estación 2 - Ensamble de Tableros', location: 'Nave A', collapsed: false }
+                ],
+                tasks: [
+                    { id: 't1', folderId: 'f1', title: 'Configurar Modbus TCP con PLC Siemens', status: 'En Proceso', color: '#2563eb', assignees: ['Ing. David Espinoza', 'Ing. Manuel Ibarra'], robotSns: ['EC66-8841'], desc: 'Validar mapeo de registros.', attachments: [], comments: [] }
+                ],
+                robots: [
+                    { id: 'r1', model: 'EC66', sn: 'EC66-8841', seriesCode: 'EC', status: 'Operativo', invoice: 'FAC-2026-001', location: 'Planta 1 - Paletizado', mfgDate: '2025-11-10', arrivalDate: '2026-01-15', testChecklist: [{ id: 'chk1', text: 'Conexión a Red Ethernet/Modbus', done: true }, { id: 'chk2', text: 'Prueba de Funcionamiento > 30 Minutos', done: true }], photos: [], notes: 'Firmware v3.4.1.', reviews: [] }
+                ],
+                series: [
+                    { code: 'EC', name: 'Elite Cobot', desc: 'Cobot colaborativo estándar industrial' },
+                    { code: 'CS', name: 'Cobot Superior', desc: 'Cobot de alta gama y rendimiento' }
+                ],
+                demos: [
+                    { id: 'd1', robotSn: 'EC66-8841', item: 'Cobot EC66 (S/N: EC66-8841)', company: 'Manufactura del Norte', dateOut: '2026-05-10', dateReturn: '2026-05-20', status: 'En Préstamo (Demo Activo)', engineer: 'Ing. David Espinoza', photos: [], notes: 'Entregado con cables completos.' }
+                ],
+                warranties: []
+            };
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            } catch(err) {
+                alert('Alerta: El almacenamiento local está lleno.');
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderProjectsAndTasks();
+            renderSeriesSelects();
+            renderInventory();
+            renderDemos();
+            renderWarranties();
+            renderSeriesTable();
+            renderStatusTable();
+            renderDemoStatusTable();
+            renderWarrantyStatusTable();
+        });
+
+        // ================= TAB NAVIGATION =================
+        function switchTab(tab) {
+            ['tasks', 'inventory', 'demos', 'warranties', 'series'].forEach(t => {
+                const el = document.getElementById('view' + capitalize(t));
+                if (el) el.classList.add('hidden');
+                const btnDesk = document.getElementById('tabBtn' + capitalize(t));
+                if (btnDesk) btnDesk.className = "px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition text-gray-400 hover:text-white hover:bg-darkSubcard";
+            });
+
+            const targetView = document.getElementById('view' + capitalize(tab));
+            if (targetView) targetView.classList.remove('hidden');
+
+            const activeBtn = document.getElementById('tabBtn' + capitalize(tab));
+            if (activeBtn) activeBtn.className = "px-3 py-2 text-xs font-medium rounded-lg flex items-center space-x-1.5 transition bg-blue-600 text-white shadow-lg shadow-blue-600/20";
+
+            if (tab === 'tasks') renderProjectsAndTasks();
+            else if (tab === 'inventory') renderInventory();
+            else if (tab === 'demos') renderDemos();
+            else if (tab === 'warranties') renderWarranties();
+            else if (tab === 'series') { renderSeriesTable(); renderStatusTable(); renderDemoStatusTable(); renderWarrantyStatusTable(); }
+        }
+
+        function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+        // ================= GESTIÓN DE PERSONAL =================
+        function openPersonnelModal() {
+            renderEngineerList();
+            openModal('modalPersonnel');
+        }
+
+        function renderEngineerList() {
+            const container = document.getElementById('engineerListContainer');
+            if (!container) return;
+            if (!appData.engineers || appData.engineers.length === 0) {
+                container.innerHTML = '<p class="text-xs text-gray-500 italic">No hay personal registrado.</p>';
+                return;
+            }
+            container.innerHTML = appData.engineers.map((eng, idx) => `
+                <div class="flex items-center justify-between bg-darkSubcard p-2 rounded border border-darkBorder">
+                    <span class="text-xs text-gray-200">${escapeHtml(eng)}</span>
+                    <button onclick="removeEngineer(${idx})" class="text-gray-400 hover:text-rose-400 px-2 py-1 text-xs"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addEngineer() {
+            const input = document.getElementById('newEngineerInput');
+            if (!input) return;
+            const name = input.value.trim();
+            if (!name) return;
+            if (appData.engineers.includes(name)) {
+                alert('Este ingeniero ya está registrado.');
+                return;
+            }
+            appData.engineers.push(name);
+            input.value = '';
+            saveData();
+            renderEngineerList();
+        }
+
+        function removeEngineer(idx) {
+            if (confirm('¿Deseas eliminar a este integrante?')) {
+                appData.engineers.splice(idx, 1);
+                saveData();
+                renderEngineerList();
+            }
+        }
+
+        // ================= CHECKBOXES BUILDERS =================
+        function renderAssigneesCheckboxes(containerId, selectedAssignees = []) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            if (!appData.engineers || appData.engineers.length === 0) {
+                container.innerHTML = '<span class="text-[11px] text-gray-500 italic">No hay personal registrado.</span>';
+                return;
+            }
+            container.innerHTML = appData.engineers.map(eng => {
+                const checked = selectedAssignees.includes(eng) ? 'checked' : '';
+                return `
+                    <label class="flex items-center space-x-2 text-xs text-gray-300 cursor-pointer select-none">
+                        <input type="checkbox" value="${escapeHtml(eng)}" ${checked} class="assignee-chk rounded bg-black border-darkBorder text-blue-600 focus:ring-0">
+                        <span>${escapeHtml(eng)}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function getCheckedAssignees(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.assignee-chk:checked')).map(cb => cb.value);
+        }
+
+        function renderRobotsCheckboxes(selectedRobotSns = []) {
+            const container = document.getElementById('taskRobotsCheckboxes');
+            if (!container) return;
+            if (!appData.robots || appData.robots.length === 0) {
+                container.innerHTML = '<span class="text-[11px] text-gray-500 italic">No hay cobots registrados.</span>';
+                return;
+            }
+            container.innerHTML = appData.robots.map(r => {
+                const checked = selectedRobotSns.includes(r.sn) ? 'checked' : '';
+                return `
+                    <label class="flex items-center space-x-2 text-xs text-gray-300 cursor-pointer select-none">
+                        <input type="checkbox" value="${escapeHtml(r.sn)}" ${checked} class="robot-chk rounded bg-black border-darkBorder text-blue-600 focus:ring-0">
+                        <span><strong>${escapeHtml(r.model)}</strong> (S/N: ${escapeHtml(r.sn)})</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function getCheckedRobots() {
+            const container = document.getElementById('taskRobotsCheckboxes');
+            if (!container) return [];
+            return Array.from(container.querySelectorAll('.robot-chk:checked')).map(cb => cb.value);
+        }
+
+        // ================= MANEJO UNIVERSAL DE ARCHIVOS =================
+        function processFileToUniversal(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = (e) => {
+                    resolve({ name: file.name, type: file.type, data: e.target.result });
+                };
+            });
+        }
+
+        async function processMultipleFiles(fileInput) {
+            if (!fileInput.files || fileInput.files.length === 0) return [];
+            const results = [];
+            for (let file of fileInput.files) {
+                const item = await processFileToUniversal(file);
+                results.push(item);
+            }
+            return results;
+        }
+
+        // ================= RENDER PROYECTOS & TAREAS =================
+        function renderProjectsAndTasks() {
+            const tabsContainer = document.getElementById('projectTabsList');
+            if (!tabsContainer) return;
+
+            tabsContainer.innerHTML = appData.projects.map(p => {
+                const active = p.id === appData.currentProjectId;
+                return `
+                    <button onclick="selectProject('${p.id}')" class="px-3 py-2 rounded-lg text-xs font-semibold flex items-center space-x-2 transition flex-shrink-0 ${active ? 'bg-blue-600 text-white shadow-md' : 'bg-darkSubcard text-gray-400 hover:text-white hover:bg-darkSubcard'} border border-darkBorder">
+                        ${p.logo ? `<img src="${p.logo}" class="w-4 h-4 object-contain rounded" onerror="this.style.display='none'">` : '<i class="fa-solid fa-folder"></i>'}
+                        <span>${escapeHtml(p.name)}</span>
+                    </button>
+                `;
+            }).join('');
+
+            const currentProj = appData.projects.find(p => p.id === appData.currentProjectId) || appData.projects[0];
+            if (!currentProj) return;
+
+            const projHeader = document.getElementById('projectHeader');
+            if (projHeader) {
+                projHeader.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <div class="w-12 h-12 bg-darkSubcard rounded-lg border border-darkBorder flex items-center justify-center p-1 overflow-hidden">
+                            ${currentProj.logo ? `<img src="${currentProj.logo}" class="max-w-full max-h-full object-contain">` : '<i class="fa-solid fa-industry text-2xl text-blue-500"></i>'}
+                        </div>
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">${escapeHtml(currentProj.name)}</h2>
+                            <p class="text-xs text-gray-400">${escapeHtml(currentProj.desc || 'Automatización.')}</p>
+                            ${currentProj.assignees && currentProj.assignees.length > 0 ? `
+                                <p class="text-[11px] text-blue-400 mt-1"><i class="fa-solid fa-users mr-1"></i>Responsables: ${escapeHtml(currentProj.assignees.join(', '))}</p>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="editProject('${currentProj.id}')" class="p-2 text-gray-400 hover:text-blue-500 hover:bg-darkSubcard rounded-lg transition"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteProject('${currentProj.id}')" class="p-2 text-gray-400 hover:text-rose-400 hover:bg-darkSubcard rounded-lg transition"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            }
+
+            const filterStatEl = document.getElementById('filterStatus');
+            const currentFilterVal = filterStatEl ? filterStatEl.value : 'ALL';
+            if (filterStatEl) {
+                filterStatEl.innerHTML = `<option value="ALL">Todos</option>` + appData.statuses.map(st => `
+                    <option value="${escapeHtml(st.name)}" ${currentFilterVal === st.name ? 'selected' : ''}>${escapeHtml(st.name)}</option>
+                `).join('');
+            }
+
+            const globalSearchEl = document.getElementById('globalSearchTask');
+            const globalSearch = globalSearchEl ? globalSearchEl.value.toLowerCase().trim() : '';
+
+            const projFolders = appData.folders.filter(f => f.projectId === currentProj.id);
+            const container = document.getElementById('foldersContainer');
+            if (!container) return;
+
+            let totalTasksCount = 0;
+
+            container.innerHTML = projFolders.map(folder => {
+                let folderTasks = appData.tasks.filter(t => t.folderId === folder.id);
+
+                if (currentFilterVal !== 'ALL') folderTasks = folderTasks.filter(t => t.status === currentFilterVal);
+                if (globalSearch) {
+                    folderTasks = folderTasks.filter(t => {
+                        return t.title.toLowerCase().includes(globalSearch) || 
+                               (t.desc || '').toLowerCase().includes(globalSearch) ||
+                               (t.assignees || []).some(a => a.toLowerCase().includes(globalSearch));
+                    });
+                }
+
+                totalTasksCount += folderTasks.length;
+
+                return `
+                    <div class="bg-darkCard rounded-xl border border-darkBorder overflow-hidden shadow-lg">
+                        <div class="bg-darkSubcard p-3 sm:p-4 flex items-center justify-between border-b border-darkBorder cursor-pointer select-none" onclick="toggleFolderCollapse('${folder.id}')">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid ${folder.collapsed ? 'fa-chevron-right' : 'fa-chevron-down'} text-gray-400 text-xs"></i>
+                                <i class="fa-solid fa-folder text-amber-500 text-lg"></i>
+                                <div>
+                                    <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                        ${escapeHtml(folder.name)}
+                                        <span class="text-[10px] px-2 py-0.5 rounded-full bg-black text-gray-400 border border-darkBorder">${folderTasks.length} tareas</span>
+                                    </h3>
+                                    ${folder.location ? `<p class="text-[11px] text-gray-400"><i class="fa-solid fa-location-dot text-[10px] mr-1"></i>${escapeHtml(folder.location)}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2" onclick="event.stopPropagation()">
+                                <button onclick="openModalTask('${folder.id}')" class="px-2.5 py-1 text-xs bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded border border-blue-500/30 transition">
+                                    <i class="fa-solid fa-plus"></i> Tarea
+                                </button>
+                                <button onclick="deleteFolder('${folder.id}')" class="p-1.5 text-gray-500 hover:text-rose-400"><i class="fa-solid fa-trash text-xs"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="${folder.collapsed ? 'hidden' : 'block'} p-3 sm:p-4 space-y-3 bg-darkCard/40">
+                            ${folderTasks.length === 0 ? `<p class="text-xs text-gray-500 italic py-2 text-center">No hay pendientes en esta carpeta.</p>` : folderTasks.map(task => renderTaskCard(task)).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('taskStatsCounter').innerText = `${totalTasksCount} Tareas Visibles`;
+        }
+
+        function renderTaskCard(task) {
+            const assigneesText = task.assignees && task.assignees.length > 0 ? task.assignees.join(', ') : 'Sin asignar';
+            const robotsList = task.robotSns || [];
+            const stObj = appData.statuses.find(s => s.name === task.status) || { color: '#2563eb' };
+            const files = task.attachments || [];
+
+            return `
+                <div class="relative bg-darkSubcard/80 hover:bg-darkSubcard transition rounded-lg border border-darkBorder p-3 sm:p-4 shadow-md pl-5">
+                    <div class="task-color-bar" style="background-color: ${task.color || '#2563eb'};"></div>
+                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                                <span class="text-xs font-semibold text-white tracking-wide">${escapeHtml(task.title)}</span>
+                                <select onchange="updateTaskStatusInline('${task.id}', this.value)" style="color: ${stObj.color}; border-color: ${stObj.color};" class="text-[10px] px-2 py-0.5 rounded border bg-black font-semibold focus:outline-none cursor-pointer">
+                                    ${appData.statuses.map(st => `<option value="${escapeHtml(st.name)}" ${task.status === st.name ? 'selected' : ''}>${escapeHtml(st.name)}</option>`).join('')}
+                                </select>
+                                ${robotsList.map(sn => {
+                                    const rob = appData.robots.find(r => r.sn === sn);
+                                    const modelStr = rob ? rob.model : 'Cobot';
+                                    return `<span class="text-[10px] px-2 py-0.5 rounded bg-black text-blue-300 border border-darkBorder flex items-center gap-1"><i class="fa-solid fa-robot text-[9px]"></i> ${escapeHtml(modelStr)} (S/N: ${escapeHtml(sn)})</span>`;
+                                }).join('')}
+                            </div>
+                            <div class="flex items-center space-x-4 text-[11px] text-gray-400 mt-1 flex-wrap">
+                                <span><i class="fa-solid fa-users text-gray-500 mr-1"></i>${escapeHtml(assigneesText)}</span>
+                                <span><i class="fa-solid fa-folder-open text-gray-500 mr-1"></i>${files.length} Archivos Adjuntos</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2 justify-end">
+                            ${files.length > 0 ? `<button onclick="openGalleryViewer(${JSON.stringify(files).replace(/"/g, '&quot;')}, '${escapeHtml(task.title)}')" class="px-2 py-1 text-xs bg-black hover:bg-gray-900 text-blue-400 border border-darkBorder rounded flex items-center gap-1"><i class="fa-solid fa-eye"></i> Previsualizar (${files.length})</button>` : ''}
+                            <button onclick="toggleTaskDetails('details-${task.id}')" class="px-2 py-1 text-xs bg-black text-gray-300 border border-darkBorder rounded">Detalle <i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+                            <button onclick="editTask('${task.id}')" class="p-1 text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+                            <button onclick="deleteTask('${task.id}')" class="p-1 text-gray-400 hover:text-rose-400"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="details-${task.id}" class="hidden mt-3 pt-3 border-t border-darkBorder/60 space-y-3">
+                        ${task.desc ? `<p class="text-xs text-gray-300 bg-black/60 p-2.5 rounded border border-darkBorder whitespace-pre-line">${escapeHtml(task.desc)}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // ================= INVENTARIO DE ROBOTS =================
+        function renderInventory() {
+            const search = document.getElementById('searchRobot').value.toLowerCase();
+            const filterSeries = document.getElementById('filterRobotSeries').value;
+            const filterStatus = document.getElementById('filterRobotStatus').value;
+            const sortBy = document.getElementById('sortRobotBy').value;
+
+            let robots = appData.robots.filter(r => {
+                const matchSearch = r.sn.toLowerCase().includes(search) || r.model.toLowerCase().includes(search) || (r.invoice || '').toLowerCase().includes(search);
+                const matchSeries = filterSeries === 'ALL' || r.seriesCode === filterSeries;
+                const matchStatus = filterStatus === 'ALL' || r.status === filterStatus;
+                return matchSearch && matchSeries && matchStatus;
+            });
+
+            robots.sort((a, b) => {
+                if (sortBy === 'RECEIPT_ASC') {
+                    return new Date(a.arrivalDate || '2099-01-01') - new Date(b.arrivalDate || '2099-01-01');
+                } else if (sortBy === 'RECEIPT_DESC') {
+                    return new Date(b.arrivalDate || '1970-01-01') - new Date(a.arrivalDate || '1970-01-01');
+                } else if (sortBy === 'MFG_ASC') {
+                    return new Date(a.mfgDate || '2099-01-01') - new Date(b.mfgDate || '2099-01-01');
+                } else {
+                    return a.sn.localeCompare(b.sn);
+                }
+            });
+
+            const grid = document.getElementById('robotsGrid');
+            if (!grid) return;
+
+            if (robots.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-darkCard rounded-xl border border-darkBorder"><p class="text-sm text-gray-400">No hay cobots registrados.</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = robots.map((r, index) => {
+                const seriesInfo = appData.series.find(s => s.code === r.seriesCode) || { name: r.seriesCode };
+                const activeDemo = appData.demos.find(d => d.robotSn === r.sn && d.status === 'En Préstamo (Demo Activo)');
+                const activeWarranty = appData.warranties.find(w => w.robotSn === r.sn && w.status !== 'Reparado / Concluido');
+                const stObj = appData.statuses.find(s => s.name === r.status) || { color: '#10b981' };
+                const photos = r.photos || [];
+                const reviews = r.reviews || [];
+                const checklist = r.testChecklist || [];
+
+                return `
+                    <div class="bg-darkCard rounded-xl border border-darkBorder overflow-hidden shadow-lg flex flex-col justify-between">
+                        <div class="p-5 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/60">${escapeHtml(r.seriesCode)} - ${escapeHtml(seriesInfo.name)}</span>
+                                        ${index === 0 && sortBy === 'RECEIPT_ASC' ? `<span class="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-800 px-1.5 py-0.5 rounded font-bold">Recomendado Venta (FIFO)</span>` : ''}
+                                    </div>
+                                    <h3 class="text-lg font-bold text-white mt-1">Modelo: <span class="text-blue-400">${escapeHtml(r.model)}</span></h3>
+                                    <p class="text-xs text-gray-300 font-mono bg-darkSubcard px-2 py-1 rounded border border-darkBorder mt-1"><strong>S/N:</strong> ${escapeHtml(r.sn)}</p>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full border font-medium" style="color: ${stObj.color}; border-color: ${stObj.color}; background-color: ${stObj.color}22;">${r.status}</span>
+                            </div>
+
+                            ${activeWarranty ? `
+                                <div class="bg-rose-950/80 border-2 border-rose-600 p-3 rounded-lg text-xs text-rose-200 space-y-1 animate-pulse">
+                                    <div class="flex justify-between items-center">
+                                        <p class="font-bold text-rose-300 flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> EN GARANTÍA / FALLA</p>
+                                        <span class="text-[10px] bg-rose-900 px-1.5 py-0.5 rounded font-mono">${escapeHtml(activeWarranty.reportNo)}</span>
+                                    </div>
+                                    <p><strong>Reportó:</strong> ${escapeHtml(activeWarranty.reporter)}</p>
+                                    <p class="text-[11px] text-rose-200 bg-black/50 p-1.5 rounded mt-1 border border-rose-800/60"><strong>Motivo:</strong> ${escapeHtml(activeWarranty.reason)}</p>
+                                </div>
+                            ` : ''}
+
+                            ${activeDemo ? `
+                                <div class="bg-amber-950/70 border-2 border-amber-500 p-3 rounded-lg text-xs text-amber-200 space-y-1">
+                                    <p class="font-bold text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-handshake"></i> EN PRÉSTAMO / DEMO</p>
+                                    <p><strong>Cliente:</strong> ${escapeHtml(activeDemo.company)}</p>
+                                    <p><strong>Ingeniero:</strong> ${escapeHtml(activeDemo.engineer || 'N/D')}</p>
+                                </div>
+                            ` : ''}
+
+                            <div class="bg-darkSubcard p-2.5 rounded border border-darkBorder text-xs space-y-1">
+                                <p><strong class="text-gray-400">Factura:</strong> <span class="text-blue-400 font-mono">${escapeHtml(r.invoice || 'No asignada')}</span></p>
+                                <p><strong class="text-gray-400">Fabricación:</strong> ${r.mfgDate || 'N/D'}</p>
+                                <p><strong class="text-gray-400">Llegada a Base:</strong> <span class="text-amber-400">${r.arrivalDate || 'N/D'}</span></p>
+                                ${r.location ? `<p><strong class="text-gray-400">Ubicación:</strong> ${escapeHtml(r.location)}</p>` : ''}
+                            </div>
+
+                            ${checklist.length > 0 ? `
+                                <div class="bg-darkSubcard p-2.5 rounded border border-darkBorder space-y-1">
+                                    <p class="text-[10px] uppercase font-bold text-gray-400">Pruebas Iniciales:</p>
+                                    ${checklist.map(chk => `
+                                        <label class="flex items-center space-x-2 text-[11px] ${chk.done ? 'text-emerald-400' : 'text-gray-500'}">
+                                            <input type="checkbox" ${chk.done ? 'checked' : ''} onchange="toggleRobotChecklist('${r.id}', '${chk.id}')" class="rounded bg-black border-darkBorder text-emerald-500">
+                                            <span>${escapeHtml(chk.text)}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            ` : ''}
+
+                            ${photos.length > 0 ? `<button onclick="openGalleryViewer(${JSON.stringify(photos).replace(/"/g, '&quot;')}, 'Modelo: ${escapeHtml(r.model)} | S/N: ${escapeHtml(r.sn)}')" class="w-full py-1.5 text-xs bg-black hover:bg-gray-900 text-blue-400 border border-darkBorder rounded transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-eye"></i> Previsualizar Archivos (${photos.length})</button>` : ''}
+
+                            <div class="space-y-1.5 pt-2 border-t border-darkBorder">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="font-bold text-gray-400 uppercase">Revisiones de Mantenimiento</span>
+                                    <button onclick="addRobotReview('${r.id}')" class="text-blue-400 hover:text-blue-300">+ Agregar</button>
+                                </div>
+                                <div class="space-y-1 max-h-24 overflow-y-auto pr-1">
+                                    ${reviews.map(rev => `
+                                        <div class="text-[11px] bg-black p-1.5 rounded border border-darkBorder">
+                                            <div class="flex justify-between text-[9px] text-gray-500"><span>${escapeHtml(rev.author)}</span><span>${rev.date}</span></div>
+                                            <p class="text-gray-300">${escapeHtml(rev.note)}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-darkSubcard p-3 border-t border-darkBorder flex justify-end space-x-2">
+                            <button onclick="editRobot('${r.id}')" class="px-3 py-1 text-xs bg-black hover:bg-gray-900 text-gray-200 border border-darkBorder rounded">Editar</button>
+                            <button onclick="deleteRobot('${r.id}')" class="px-3 py-1 text-xs bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-900/60 rounded">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleRobotChecklist(robotId, checkId) {
+            const robot = appData.robots.find(r => r.id === robotId);
+            if (robot && robot.testChecklist) {
+                const item = robot.testChecklist.find(c => c.id === checkId);
+                if (item) item.done = !item.done;
+                saveData();
+                renderInventory();
+            }
+        }
+
+        function addRobotReview(robotId) {
+            const note = prompt('Escribe el reporte o revisión de mantenimiento:');
+            if (!note) return;
+            const robot = appData.robots.find(r => r.id === robotId);
+            if (robot) {
+                if (!robot.reviews) robot.reviews = [];
+                robot.reviews.push({ date: new Date().toISOString().split('T')[0], author: 'Ing. Servicio', note });
+                saveData();
+                renderInventory();
+            }
+        }
+
+        // ================= APARTADO DEMOS & PRÉSTAMOS =================
+        function renderDemos() {
+            const grid = document.getElementById('demosGrid');
+            if (!grid) return;
+
+            if (!appData.demos || appData.demos.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-darkCard rounded-xl border border-darkBorder"><p class="text-sm text-gray-400">No hay registros de préstamos.</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = appData.demos.map(d => {
+                const photos = d.photos || [];
+                return `
+                    <div class="bg-darkCard rounded-xl border border-darkBorder overflow-hidden shadow-lg flex flex-col justify-between">
+                        <div class="p-5 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800/60"><i class="fa-solid fa-building mr-1"></i>${escapeHtml(d.company)}</span>
+                                    <h3 class="text-base font-bold text-white mt-1">${escapeHtml(d.item)}</h3>
+                                    ${d.robotSn ? `<p class="text-[11px] text-blue-400 font-mono mt-0.5">S/N: ${escapeHtml(d.robotSn)}</p>` : ''}
+                                </div>
+                                <span class="text-[10px] px-2 py-0.5 rounded-full border bg-amber-950/80 text-amber-400 border-amber-800/60 font-medium">${d.status}</span>
+                            </div>
+                            <div class="text-xs text-gray-300 space-y-1 bg-darkSubcard p-2.5 rounded border border-darkBorder">
+                                <p><strong class="text-gray-400">Salida:</strong> ${d.dateOut || 'N/D'}</p>
+                                <p><strong class="text-gray-400">Retorno Est.:</strong> ${d.dateReturn || 'N/D'}</p>
+                                <p><strong class="text-gray-400">Responsables:</strong> ${escapeHtml(d.engineer || 'No asignado')}</p>
+                            </div>
+                            ${photos.length > 0 ? `<button onclick="openGalleryViewer(${JSON.stringify(photos).replace(/"/g, '&quot;')}, 'Fotos: ${escapeHtml(d.item)}')" class="w-full py-1.5 text-xs bg-black hover:bg-gray-900 text-blue-400 border border-darkBorder rounded transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-eye"></i> Previsualizar Archivos (${photos.length})</button>` : ''}
+                        </div>
+                        <div class="bg-darkSubcard p-3 border-t border-darkBorder flex justify-end space-x-2">
+                            <button onclick="editDemo('${d.id}')" class="px-3 py-1 text-xs bg-black hover:bg-gray-900 text-gray-200 border border-darkBorder rounded">Editar</button>
+                            <button onclick="deleteDemo('${d.id}')" class="px-3 py-1 text-xs bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-900/60 rounded">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openModalDemo() {
+            document.getElementById('formDemo').reset();
+            document.getElementById('demoId').value = '';
+            document.getElementById('modalDemoTitle').innerText = 'Registrar Préstamo / Demo';
+            document.getElementById('demoDateOut').value = new Date().toISOString().split('T')[0];
+
+            const select = document.getElementById('demoRobotSelect');
+            select.innerHTML = `<option value="">-- Seleccionar de Inventario --</option>` + appData.robots.map(r => `<option value="${r.sn}">${r.model} (S/N: ${r.sn})</option>`).join('');
+
+            const statSelect = document.getElementById('demoStatus');
+            statSelect.innerHTML = appData.demoStatuses.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+
+            renderAssigneesCheckboxes('demoAssigneesCheckboxes', []);
+            openModal('modalDemo');
+        }
+
+        function onDemoRobotSelectChange() {
+            const sn = document.getElementById('demoRobotSelect').value;
+            if (!sn) return;
+            const robot = appData.robots.find(r => r.sn === sn);
+            if (robot) document.getElementById('demoItem').value = `${robot.model} (S/N: ${robot.sn})`;
+        }
+
+        async function saveDemo(e) {
+            e.preventDefault();
+            const id = document.getElementById('demoId').value;
+            const robotSn = document.getElementById('demoRobotSelect').value;
+            const item = document.getElementById('demoItem').value.trim();
+            const company = document.getElementById('demoCompany').value.trim();
+            const dateOut = document.getElementById('demoDateOut').value;
+            const dateReturn = document.getElementById('demoDateReturn').value;
+            const status = document.getElementById('demoStatus').value;
+            const engineer = getCheckedAssignees('demoAssigneesCheckboxes').join(', ');
+            const notes = document.getElementById('demoNotes').value.trim();
+            const fileInput = document.getElementById('demoPhotoFiles');
+
+            let photos = [];
+            if (id) {
+                const existing = appData.demos.find(d => d.id === id);
+                if (existing) photos = existing.photos || [];
+            }
+
+            const newFiles = await processMultipleFiles(fileInput);
+            photos = [...photos, ...newFiles];
+
+            if (id) {
+                const d = appData.demos.find(d => d.id === id);
+                if (d) { d.robotSn = robotSn; d.item = item; d.company = company; d.dateOut = dateOut; d.dateReturn = dateReturn; d.status = status; d.engineer = engineer; d.photos = photos; d.notes = notes; }
+            } else {
+                appData.demos.push({ id: 'demo_' + Date.now(), robotSn, item, company, dateOut, dateReturn, status, engineer, photos, notes });
+            }
+
+            saveData();
+            closeModal('modalDemo');
+            renderDemos();
+            renderInventory();
+        }
+
+        function editDemo(id) {
+            const d = appData.demos.find(d => d.id === id);
+            if (!d) return;
+            openModalDemo();
+            document.getElementById('demoId').value = d.id;
+            document.getElementById('demoRobotSelect').value = d.robotSn || '';
+            document.getElementById('demoItem').value = d.item;
+            document.getElementById('demoCompany').value = d.company;
+            document.getElementById('demoDateOut').value = d.dateOut || '';
+            document.getElementById('demoDateReturn').value = d.dateReturn || '';
+            document.getElementById('demoStatus').value = d.status;
+            renderAssigneesCheckboxes('demoAssigneesCheckboxes', (d.engineer || '').split(', '));
+            document.getElementById('demoNotes').value = d.notes || '';
+            document.getElementById('modalDemoTitle').innerText = 'Editar Préstamo / Demo';
+        }
+
+        function deleteDemo(id) {
+            if (confirm('¿Eliminar préstamo?')) {
+                appData.demos = appData.demos.filter(d => d.id !== id);
+                saveData();
+                renderDemos();
+                renderInventory();
+            }
+        }
+
+        // ================= APARTADO GARANTÍAS & FALLAS =================
+        function renderWarranties() {
+            const grid = document.getElementById('warrantiesGrid');
+            if (!grid) return;
+
+            if (!appData.warranties || appData.warranties.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-12 bg-darkCard rounded-xl border border-darkBorder"><i class="fa-solid fa-shield-check text-4xl text-gray-700 mb-2"></i><p class="text-sm text-gray-400">No hay equipos actualmente en garantía o con fallas.</p></div>`;
+                return;
+            }
+
+            grid.innerHTML = appData.warranties.map(w => {
+                const photos = w.photos || [];
+                const reviews = w.reviews || [];
+                const rob = appData.robots.find(r => r.sn === w.robotSn);
+                const modelStr = rob ? rob.model : 'Equipo';
+
+                return `
+                    <div class="bg-darkCard rounded-xl border border-rose-900/50 overflow-hidden shadow-lg flex flex-col justify-between">
+                        <div class="p-5 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">${escapeHtml(w.reportNo)}</span>
+                                    <h3 class="text-base font-bold text-white mt-1">Modelo: <span class="text-rose-400">${escapeHtml(modelStr)}</span></h3>
+                                    <p class="text-xs text-gray-300 font-mono">S/N: ${escapeHtml(w.robotSn)}</p>
+                                    <p class="text-xs text-rose-300 font-medium mt-1"><i class="fa-solid fa-user-gear mr-1"></i>Reportó: ${escapeHtml(w.reporter)}</p>
+                                </div>
+                                <select onchange="updateWarrantyStatusInline('${w.id}', this.value)" class="text-[10px] px-2 py-1 rounded bg-black text-rose-300 border border-rose-800 font-bold focus:outline-none">
+                                    ${appData.warrantyStatuses.map(st => `<option value="${escapeHtml(st)}" ${w.status === st ? 'selected' : ''}>${escapeHtml(st)}</option>`).join('')}
+                                </select>
+                            </div>
+
+                            <div class="bg-darkSubcard p-2.5 rounded border border-darkBorder text-xs space-y-1">
+                                <p><strong class="text-gray-400">Fecha Falla:</strong> ${w.date || 'N/D'}</p>
+                                <p><strong class="text-gray-400">Prioridad:</strong> <span class="text-rose-400">${escapeHtml(w.priority || 'Alta')}</span></p>
+                            </div>
+
+                            <div class="bg-black/80 p-2.5 rounded border border-darkBorder text-xs text-gray-200">
+                                <strong class="text-rose-400 text-[10px] uppercase block mb-1">Diagnóstico / Razón de Garantía:</strong>
+                                <p class="whitespace-pre-line">${escapeHtml(w.reason)}</p>
+                            </div>
+
+                            ${photos.length > 0 ? `<button onclick="openGalleryViewer(${JSON.stringify(photos).replace(/"/g, '&quot;')}, 'Reporte: ${escapeHtml(w.reportNo)}')" class="w-full py-1.5 text-xs bg-black hover:bg-gray-900 text-rose-400 border border-darkBorder rounded transition flex items-center justify-center gap-1.5"><i class="fa-solid fa-eye"></i> Previsualizar Archivos (${photos.length})</button>` : ''}
+
+                            <div class="space-y-1.5 pt-2 border-t border-darkBorder">
+                                <div class="flex justify-between items-center text-[10px]">
+                                    <span class="font-bold text-gray-400 uppercase">Seguimiento / Comentarios</span>
+                                    <button onclick="addWarrantyReview('${w.id}')" class="text-blue-400 hover:text-blue-300">+ Entrada</button>
+                                </div>
+                                <div class="space-y-1 max-h-24 overflow-y-auto pr-1">
+                                    ${reviews.map(rev => `
+                                        <div class="text-[11px] bg-black p-1.5 rounded border border-darkBorder">
+                                            <div class="flex justify-between text-[9px] text-gray-500"><span>${escapeHtml(rev.author)}</span><span>${rev.date}</span></div>
+                                            <p class="text-gray-300">${escapeHtml(rev.note)}</p>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-darkSubcard p-3 border-t border-darkBorder flex justify-end space-x-2">
+                            <button onclick="editWarranty('${w.id}')" class="px-3 py-1 text-xs bg-black hover:bg-gray-900 text-gray-200 border border-darkBorder rounded">Editar Razón/Estatus</button>
+                            <button onclick="deleteWarranty('${w.id}')" class="px-3 py-1 text-xs bg-rose-950/40 hover:bg-rose-900 text-rose-300 border border-rose-900/60 rounded">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateWarrantyStatusInline(id, newStatus) {
+            const w = appData.warranties.find(w => w.id === id);
+            if (w) {
+                w.status = newStatus;
+                const robot = appData.robots.find(r => r.sn === w.robotSn);
+                if (robot) {
+                    if (newStatus.toLowerCase().includes('reparado') || newStatus.toLowerCase().includes('reemplazo')) {
+                        robot.status = 'Operativo';
+                    } else {
+                        robot.status = 'En Garantía';
+                    }
+                }
+                saveData();
+                renderWarranties();
+                renderInventory();
+            }
+        }
+
+        function openModalWarranty() {
+            document.getElementById('formWarranty').reset();
+            document.getElementById('warrantyId').value = '';
+            document.getElementById('modalWarrantyTitle').innerText = 'Registrar Falla / Entrada a Garantía';
+            document.getElementById('warrantyDate').value = new Date().toISOString().split('T')[0];
+
+            const snSelect = document.getElementById('warrantyRobotSn');
+            snSelect.innerHTML = `<option value="">-- Seleccionar Cobot --</option>` + appData.robots.map(r => `
+                <option value="${r.sn}">${r.model} (S/N: ${r.sn})</option>
+            `).join('');
+
+            const engSelect = document.getElementById('warrantyReporter');
+            engSelect.innerHTML = appData.engineers.map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+
+            const statSelect = document.getElementById('warrantyStatus');
+            statSelect.innerHTML = appData.warrantyStatuses.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+
+            openModal('modalWarranty');
+        }
+
+        async function saveWarranty(e) {
+            e.preventDefault();
+            const id = document.getElementById('warrantyId').value;
+            const reportNo = document.getElementById('warrantyReportNo').value.trim();
+            const robotSn = document.getElementById('warrantyRobotSn').value;
+            const reporter = document.getElementById('warrantyReporter').value;
+            const status = document.getElementById('warrantyStatus').value;
+            const date = document.getElementById('warrantyDate').value;
+            const priority = document.getElementById('warrantyPriority').value;
+            const reason = document.getElementById('warrantyReason').value.trim();
+            const fileInput = document.getElementById('warrantyFiles');
+
+            let photos = [];
+            if (id) {
+                const existing = appData.warranties.find(w => w.id === id);
+                if (existing) photos = existing.photos || [];
+            }
+
+            const newFiles = await processMultipleFiles(fileInput);
+            photos = [...photos, ...newFiles];
+
+            if (id) {
+                const w = appData.warranties.find(w => w.id === id);
+                if (w) {
+                    w.reportNo = reportNo; w.robotSn = robotSn; w.reporter = reporter;
+                    w.status = status; w.date = date; w.priority = priority; w.reason = reason; w.photos = photos;
+                }
+            } else {
+                appData.warranties.push({ id: 'w_' + Date.now(), reportNo, robotSn, reporter, status, date, priority, reason, photos, reviews: [] });
+            }
+
+            const robot = appData.robots.find(r => r.sn === robotSn);
+            if (robot) {
+                if (status.toLowerCase().includes('reparado') || status.toLowerCase().includes('reemplazo')) {
+                    robot.status = 'Operativo';
+                } else {
+                    robot.status = 'En Garantía';
+                }
+            }
+
+            saveData();
+            closeModal('modalWarranty');
+            renderWarranties();
+            renderInventory();
+        }
+
+        function editWarranty(id) {
+            const w = appData.warranties.find(w => w.id === id);
+            if (!w) return;
+            openModalWarranty();
+            document.getElementById('warrantyId').value = w.id;
+            document.getElementById('warrantyReportNo').value = w.reportNo;
+            document.getElementById('warrantyRobotSn').value = w.robotSn;
+            document.getElementById('warrantyReporter').value = w.reporter;
+            document.getElementById('warrantyStatus').value = w.status;
+            document.getElementById('warrantyDate').value = w.date || '';
+            document.getElementById('warrantyPriority').value = w.priority || 'Alta / Crítica';
+            document.getElementById('warrantyReason').value = w.reason;
+            document.getElementById('modalWarrantyTitle').innerText = 'Editar Razón / Garantía';
+        }
+
+        function deleteWarranty(id) {
+            if (confirm('¿Eliminar registro de garantía?')) {
+                appData.warranties = appData.warranties.filter(w => w.id !== id);
+                saveData();
+                renderWarranties();
+                renderInventory();
+            }
+        }
+
+        function addWarrantyReview(warrantyId) {
+            const note = prompt('Escribe el reporte de seguimiento/avance:');
+            if (!note) return;
+            const w = appData.warranties.find(w => w.id === warrantyId);
+            if (w) {
+                if (!w.reviews) w.reviews = [];
+                w.reviews.push({ date: new Date().toISOString().split('T')[0], author: 'Ing. Servicio', note });
+                saveData();
+                renderWarranties();
+            }
+        }
+
+        // ================= CONFIG, SERIES & ESTATUS DINÁMICOS =================
+        function renderSeriesTable() {
+            const tbody = document.getElementById('seriesTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = appData.series.map(s => `
+                <tr class="hover:bg-darkSubcard/50 transition">
+                    <td class="p-2.5 font-bold text-blue-400 font-mono">${escapeHtml(s.code)}</td>
+                    <td class="p-2.5 font-medium text-white">${escapeHtml(s.name)}</td>
+                    <td class="p-2.5 text-right space-x-2">
+                        <button onclick="editSeries('${s.code}')" class="text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteSeries('${s.code}')" class="text-gray-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            renderSeriesSelects();
+        }
+
+        function renderStatusTable() {
+            const tbody = document.getElementById('statusTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = appData.statuses.map(st => `
+                <tr class="hover:bg-darkSubcard/50 transition">
+                    <td class="p-2.5 font-medium flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full inline-block" style="background-color: ${st.color};"></span>
+                        <span class="text-white">${escapeHtml(st.name)}</span>
+                    </td>
+                    <td class="p-2.5 font-mono text-gray-400">${st.color}</td>
+                    <td class="p-2.5 text-right space-x-2">
+                        <button onclick="editStatus('${escapeHtml(st.name)}')" class="text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteStatus('${escapeHtml(st.name)}')" class="text-gray-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderDemoStatusTable() {
+            const tbody = document.getElementById('demoStatusTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = appData.demoStatuses.map((st, idx) => `
+                <tr class="hover:bg-darkSubcard/50 transition">
+                    <td class="p-2.5 font-medium text-white">${escapeHtml(st)}</td>
+                    <td class="p-2.5 text-right space-x-2">
+                        <button onclick="editDemoStatus(${idx})" class="text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteDemoStatus(${idx})" class="text-gray-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderWarrantyStatusTable() {
+            const tbody = document.getElementById('warrantyStatusTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = appData.warrantyStatuses.map((st, idx) => `
+                <tr class="hover:bg-darkSubcard/50 transition">
+                    <td class="p-2.5 font-medium text-white">${escapeHtml(st)}</td>
+                    <td class="p-2.5 text-right space-x-2">
+                        <button onclick="editWarrantyStatus(${idx})" class="text-gray-400 hover:text-blue-500"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteWarrantyStatus(${idx})" class="text-gray-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSeriesSelects() {
+            const seriesOptions = appData.series.map(s => `<option value="${s.code}">${s.code} - ${s.name}</option>`).join('');
+            const filterSelect = document.getElementById('filterRobotSeries');
+            if (filterSelect) filterSelect.innerHTML = `<option value="ALL">Todas las Series</option>` + seriesOptions;
+            
+            const robotSeriesSelect = document.getElementById('robotSeriesCode');
+            if (robotSeriesSelect) robotSeriesSelect.innerHTML = seriesOptions;
+        }
+
+        // CRUD Series y Estatus
+        function openModalSeries() {
+            document.getElementById('formSeries').reset();
+            document.getElementById('seriesOriginalCode').value = '';
+            openModal('modalSeries');
+        }
+
+        function saveSeries(e) {
+            e.preventDefault();
+            const origCode = document.getElementById('seriesOriginalCode').value;
+            const code = document.getElementById('seriesCode').value.trim().toUpperCase();
+            const name = document.getElementById('seriesName').value.trim();
+            const desc = document.getElementById('seriesDesc').value.trim();
+            if (!code || !name) return;
+
+            if (origCode) {
+                const s = appData.series.find(s => s.code === origCode);
+                if (s) { s.code = code; s.name = name; s.desc = desc; }
+            } else {
+                if (appData.series.some(s => s.code === code)) { alert('La serie ya existe.'); return; }
+                appData.series.push({ code, name, desc });
+            }
+            saveData();
+            closeModal('modalSeries');
+            renderSeriesTable();
+        }
+
+        function editSeries(code) {
+            const s = appData.series.find(s => s.code === code);
+            if (!s) return;
+            document.getElementById('seriesOriginalCode').value = s.code;
+            document.getElementById('seriesCode').value = s.code;
+            document.getElementById('seriesName').value = s.name;
+            document.getElementById('seriesDesc').value = s.desc || '';
+            openModal('modalSeries');
+        }
+
+        function deleteSeries(code) {
+            if (confirm(`¿Eliminar serie ${code}?`)) {
+                appData.series = appData.series.filter(s => s.code !== code);
+                saveData();
+                renderSeriesTable();
+            }
+        }
+
+        function openModalStatus() {
+            document.getElementById('formStatus').reset();
+            document.getElementById('statusOriginalName').value = '';
+            document.getElementById('statusColorInput').value = '#f59e0b';
+            openModal('modalStatus');
+        }
+
+        function saveStatusCustom(e) {
+            e.preventDefault();
+            const origName = document.getElementById('statusOriginalName').value;
+            const name = document.getElementById('statusNameInput').value.trim();
+            const color = document.getElementById('statusColorInput').value;
+            if (!name) return;
+
+            if (origName) {
+                const st = appData.statuses.find(s => s.name === origName);
+                if (st) { st.name = name; st.color = color; }
+            } else {
+                appData.statuses.push({ name, color });
+            }
+            saveData();
+            closeModal('modalStatus');
+            renderStatusTable();
+            renderProjectsAndTasks();
+            renderInventory();
+        }
+
+        function editStatus(name) {
+            const st = appData.statuses.find(s => s.name === name);
+            if (!st) return;
+            document.getElementById('statusOriginalName').value = st.name;
+            document.getElementById('statusNameInput').value = st.name;
+            document.getElementById('statusColorInput').value = st.color || '#f59e0b';
+            openModal('modalStatus');
+        }
+
+        function deleteStatus(name) {
+            if (appData.statuses.length <= 1) { alert('Debe haber al menos un estatus.'); return; }
+            if (confirm(`¿Eliminar estatus "${name}"?`)) {
+                appData.statuses = appData.statuses.filter(s => s.name !== name);
+                saveData();
+                renderStatusTable();
+            }
+        }
+
+        // Estatus Demos Custom
+        function openModalDemoStatus() {
+            document.getElementById('formDemoStatus').reset();
+            document.getElementById('demoStatusOriginalName').value = '';
+            openModal('modalDemoStatus');
+        }
+
+        function saveDemoStatusCustom(e) {
+            e.preventDefault();
+            const origName = document.getElementById('demoStatusOriginalName').value;
+            const name = document.getElementById('demoStatusNameInput').value.trim();
+            if (!name) return;
+
+            if (origName !== '') {
+                const idx = parseInt(origName);
+                appData.demoStatuses[idx] = name;
+            } else {
+                appData.demoStatuses.push(name);
+            }
+            saveData();
+            closeModal('modalDemoStatus');
+            renderDemoStatusTable();
+        }
+
+        function editDemoStatus(idx) {
+            openModalDemoStatus();
+            document.getElementById('demoStatusOriginalName').value = idx;
+            document.getElementById('demoStatusNameInput').value = appData.demoStatuses[idx];
+        }
+
+        function deleteDemoStatus(idx) {
+            if (appData.demoStatuses.length <= 1) { alert('Debe haber al menos un estatus de préstamo.'); return; }
+            if (confirm('¿Eliminar este estatus de préstamo?')) {
+                appData.demoStatuses.splice(idx, 1);
+                saveData();
+                renderDemoStatusTable();
+            }
+        }
+
+        // Estatus Garantías Custom
+        function openModalWarrantyStatus() {
+            document.getElementById('formWarrantyStatus').reset();
+            document.getElementById('warrantyStatusOriginalName').value = '';
+            openModal('modalWarrantyStatus');
+        }
+
+        function saveWarrantyStatusCustom(e) {
+            e.preventDefault();
+            const origName = document.getElementById('warrantyStatusOriginalName').value;
+            const name = document.getElementById('warrantyStatusNameInput').value.trim();
+            if (!name) return;
+
+            if (origName !== '') {
+                const idx = parseInt(origName);
+                appData.warrantyStatuses[idx] = name;
+            } else {
+                appData.warrantyStatuses.push(name);
+            }
+            saveData();
+            closeModal('modalWarrantyStatus');
+            renderWarrantyStatusTable();
+        }
+
+        function editWarrantyStatus(idx) {
+            openModalWarrantyStatus();
+            document.getElementById('warrantyStatusOriginalName').value = idx;
+            document.getElementById('warrantyStatusNameInput').value = appData.warrantyStatuses[idx];
+        }
+
+        function deleteWarrantyStatus(idx) {
+            if (appData.warrantyStatuses.length <= 1) { alert('Debe haber al menos un estatus de garantía.'); return; }
+            if (confirm('¿Eliminar este estatus de garantía?')) {
+                appData.warrantyStatuses.splice(idx, 1);
+                saveData();
+                renderWarrantyStatusTable();
+            }
+        }
+
+        // ================= CRUD PROYECTOS & TAREAS & ROBOTS =================
+        function openModalProject() {
+            document.getElementById('formProject').reset();
+            document.getElementById('projId').value = '';
+            document.getElementById('modalProjectTitle').innerText = 'Nuevo Proyecto';
+            renderAssigneesCheckboxes('projAssigneesCheckboxes', []);
+            openModal('modalProject');
+        }
+
+        async function saveProject(e) {
+            e.preventDefault();
+            const id = document.getElementById('projId').value;
+            const name = document.getElementById('projName').value.trim();
+            const desc = document.getElementById('projDesc').value.trim();
+            const assignees = getCheckedAssignees('projAssigneesCheckboxes');
+            const fileInput = document.getElementById('projLogoFile');
+            if (!name) return;
+
+            let logo = '';
+            if (id) {
+                const existing = appData.projects.find(p => p.id === id);
+                if (existing) logo = existing.logo || '';
+            }
+            if (fileInput.files && fileInput.files[0]) {
+                const res = await processFileToUniversal(fileInput.files[0]);
+                logo = res.data;
+            }
+
+            if (id) {
+                const proj = appData.projects.find(p => p.id === id);
+                if (proj) { proj.name = name; proj.logo = logo; proj.desc = desc; proj.assignees = assignees; }
+            } else {
+                const newProj = { id: 'p_' + Date.now(), name, logo, desc, assignees };
+                appData.projects.push(newProj);
+                appData.currentProjectId = newProj.id;
+            }
+            saveData();
+            closeModal('modalProject');
+            renderProjectsAndTasks();
+        }
+
+        function editProject(id) {
+            const proj = appData.projects.find(p => p.id === id);
+            if (!proj) return;
+            document.getElementById('projId').value = proj.id;
+            document.getElementById('projName').value = proj.name;
+            document.getElementById('projDesc').value = proj.desc || '';
+            document.getElementById('modalProjectTitle').innerText = 'Editar Proyecto';
+            renderAssigneesCheckboxes('projAssigneesCheckboxes', proj.assignees || []);
+            openModal('modalProject');
+        }
+
+        function deleteProject(id) {
+            if (appData.projects.length <= 1) { alert('Debes mantener al menos un proyecto activo.'); return; }
+            if (confirm('¿Eliminar este proyecto y sus estaciones?')) {
+                appData.projects = appData.projects.filter(p => p.id !== id);
+                appData.folders = appData.folders.filter(f => f.projectId !== id);
+                appData.currentProjectId = appData.projects[0].id;
+                saveData();
+                renderProjectsAndTasks();
+            }
+        }
+
+        function openModalFolder() {
+            document.getElementById('formFolder').reset();
+            document.getElementById('folderId').value = '';
+            openModal('modalFolder');
+        }
+
+        function saveFolder(e) {
+            e.preventDefault();
+            const id = document.getElementById('folderId').value;
+            const name = document.getElementById('folderName').value.trim();
+            const location = document.getElementById('folderLocation').value.trim();
+            if (!name) return;
+
+            if (id) {
+                const folder = appData.folders.find(f => f.id === id);
+                if (folder) { folder.name = name; folder.location = location; }
+            } else {
+                appData.folders.push({ id: 'f_' + Date.now(), projectId: appData.currentProjectId, name, location, collapsed: false });
+            }
+            saveData();
+            closeModal('modalFolder');
+            renderProjectsAndTasks();
+        }
+
+        function deleteFolder(id) {
+            if (confirm('¿Eliminar Estación?')) {
+                appData.folders = appData.folders.filter(f => f.id !== id);
+                appData.tasks = appData.tasks.filter(t => t.folderId !== id);
+                saveData();
+                renderProjectsAndTasks();
+            }
+        }
+
+        function openModalTask(folderId = null) {
+            document.getElementById('formTask').reset();
+            document.getElementById('taskId').value = '';
+            document.getElementById('taskColor').value = '#2563eb';
+            document.getElementById('modalTaskTitle').innerText = 'Nueva Tarea de Control';
+
+            const folderSelect = document.getElementById('taskFolderId');
+            const currentProjFolders = appData.folders.filter(f => f.projectId === appData.currentProjectId);
+            folderSelect.innerHTML = currentProjFolders.map(f => `<option value="${f.id}" ${f.id === folderId ? 'selected' : ''}>${escapeHtml(f.name)}</option>`).join('');
+
+            const taskStatusSelect = document.getElementById('taskStatus');
+            if (taskStatusSelect) {
+                taskStatusSelect.innerHTML = appData.statuses.map(st => `<option value="${escapeHtml(st.name)}">${escapeHtml(st.name)}</option>`).join('');
+            }
+
+            renderAssigneesCheckboxes('taskAssigneesCheckboxes', []);
+            renderRobotsCheckboxes([]);
+            openModal('modalTask');
+        }
+
+        async function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById('taskId').value;
+            const folderId = document.getElementById('taskFolderId').value;
+            const title = document.getElementById('taskTitle').value.trim();
+            const status = document.getElementById('taskStatus').value;
+            const color = document.getElementById('taskColor').value;
+            const assignees = getCheckedAssignees('taskAssigneesCheckboxes');
+            const robotSns = getCheckedRobots();
+            const desc = document.getElementById('taskDesc').value.trim();
+            const fileInput = document.getElementById('taskAttachmentFiles');
+            if (!title || !folderId) return;
+
+            let attachments = [];
+            if (id) {
+                const existing = appData.tasks.find(t => t.id === id);
+                if (existing) attachments = existing.attachments || [];
+            }
+
+            const newFiles = await processMultipleFiles(fileInput);
+            attachments = [...attachments, ...newFiles];
+
+            if (id) {
+                const task = appData.tasks.find(t => t.id === id);
+                if (task) {
+                    task.folderId = folderId; task.title = title; task.status = status;
+                    task.color = color; task.assignees = assignees; task.robotSns = robotSns;
+                    task.desc = desc; task.attachments = attachments;
+                }
+            } else {
+                appData.tasks.push({ id: 't_' + Date.now(), folderId, title, status, color, assignees, robotSns, desc, attachments, comments: [] });
+            }
+            saveData();
+            closeModal('modalTask');
+            renderProjectsAndTasks();
+        }
+
+        function editTask(id) {
+            const task = appData.tasks.find(t => t.id === id);
+            if (!task) return;
+            openModalTask(task.folderId);
+            document.getElementById('taskId').value = task.id;
+            document.getElementById('taskTitle').value = task.title;
+            document.getElementById('taskStatus').value = task.status;
+            document.getElementById('taskColor').value = task.color || '#2563eb';
+            document.getElementById('taskDesc').value = task.desc || '';
+            renderAssigneesCheckboxes('taskAssigneesCheckboxes', task.assignees || []);
+            renderRobotsCheckboxes(task.robotSns || []);
+            document.getElementById('modalTaskTitle').innerText = 'Editar Tarea';
+        }
+
+        function deleteTask(id) {
+            if (confirm('¿Eliminar tarea?')) {
+                appData.tasks = appData.tasks.filter(t => t.id !== id);
+                saveData();
+                renderProjectsAndTasks();
+            }
+        }
+
+        function updateTaskStatusInline(taskId, newStatus) {
+            const task = appData.tasks.find(t => t.id === taskId);
+            if (task) { task.status = newStatus; saveData(); renderProjectsAndTasks(); }
+        }
+
+        function toggleFolderCollapse(folderId) {
+            const folder = appData.folders.find(f => f.id === folderId);
+            if (folder) { folder.collapsed = !folder.collapsed; saveData(); renderProjectsAndTasks(); }
+        }
+
+        function toggleTaskDetails(elementId) {
+            document.getElementById(elementId).classList.toggle('hidden');
+        }
+
+        function selectProject(id) {
+            appData.currentProjectId = id;
+            saveData();
+            renderProjectsAndTasks();
+        }
+
+        // CRUD Robots
+        function openModalRobot() {
+            document.getElementById('formRobot').reset();
+            document.getElementById('robotId').value = '';
+            document.getElementById('modalRobotTitle').innerText = 'Registrar Cobot / Componente';
+            renderSeriesSelects();
+
+            const statSelect = document.getElementById('robotStatus');
+            statSelect.innerHTML = appData.statuses.map(st => `<option value="${st.name}">${st.name}</option>`).join('');
+
+            renderRobotChecklistItems([{ id: 'chk1', text: 'Conexión a Red Ethernet/Modbus', done: false }, { id: 'chk2', text: 'Prueba de Funcionamiento > 30 Minutos', done: false }, { id: 'chk3', text: 'Inspección Visual de Arneses y Cables', done: false }]);
+
+            openModal('modalRobot');
+        }
+
+        function renderRobotChecklistItems(items = []) {
+            const container = document.getElementById('testChecklistContainer');
+            if (!container) return;
+            container.innerHTML = items.map((chk) => `
+                <div class="flex items-center justify-between gap-2">
+                    <input type="text" value="${escapeHtml(chk.text)}" data-chk-id="${chk.id}" class="chk-text-input flex-1 bg-black border border-darkBorder rounded px-2 py-1 text-xs text-white focus:outline-none">
+                    <label class="flex items-center space-x-1 text-xs text-gray-300">
+                        <input type="checkbox" ${chk.done ? 'checked' : ''} class="chk-done-input rounded bg-black text-emerald-500">
+                        <span class="text-[10px]">OK</span>
+                    </label>
+                    <button type="button" onclick="this.parentElement.remove()" class="text-rose-400 text-xs px-1"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function addNewTestCheckitem() {
+            const container = document.getElementById('testChecklistContainer');
+            if (!container) return;
+            const newDiv = document.createElement('div');
+            newDiv.className = "flex items-center justify-between gap-2";
+            newDiv.innerHTML = `
+                <input type="text" placeholder="Nueva prueba..." data-chk-id="chk_${Date.now()}" class="chk-text-input flex-1 bg-black border border-darkBorder rounded px-2 py-1 text-xs text-white focus:outline-none">
+                <label class="flex items-center space-x-1 text-xs text-gray-300">
+                    <input type="checkbox" class="chk-done-input rounded bg-black text-emerald-500">
+                    <span class="text-[10px]">OK</span>
+                </label>
+                <button type="button" onclick="this.parentElement.remove()" class="text-rose-400 text-xs px-1"><i class="fa-solid fa-xmark"></i></button>
+            `;
+            container.appendChild(newDiv);
+        }
+
+        function getRobotChecklistDataFromModal() {
+            const container = document.getElementById('testChecklistContainer');
+            if (!container) return [];
+            const rows = container.querySelectorAll('.flex');
+            const result = [];
+            rows.forEach(r => {
+                const textInput = r.querySelector('.chk-text-input');
+                const doneInput = r.querySelector('.chk-done-input');
+                if (textInput && textInput.value.trim()) {
+                    result.push({
+                        id: textInput.getAttribute('data-chk-id') || ('chk_' + Date.now()),
+                        text: textInput.value.trim(),
+                        done: doneInput ? doneInput.checked : false
+                    });
+                }
+            });
+            return result;
+        }
+
+        async function saveRobot(e) {
+            e.preventDefault();
+            const id = document.getElementById('robotId').value;
+            const model = document.getElementById('robotModel').value.trim();
+            const sn = document.getElementById('robotSn').value.trim();
+            const seriesCode = document.getElementById('robotSeriesCode').value;
+            const status = document.getElementById('robotStatus').value;
+            const mfgDate = document.getElementById('robotMfgDate').value;
+            const arrivalDate = document.getElementById('robotArrivalDate').value;
+            const invoice = document.getElementById('robotInvoice').value.trim();
+            const location = document.getElementById('robotLocation').value.trim();
+            const notes = document.getElementById('robotNotes').value.trim();
+            const fileInput = document.getElementById('robotPhotoFiles');
+            const testChecklist = getRobotChecklistDataFromModal();
+            if (!sn || !model) return;
+
+            let photos = [];
+            if (id) {
+                const existing = appData.robots.find(r => r.id === id);
+                if (existing) photos = existing.photos || [];
+            }
+
+            const newFiles = await processMultipleFiles(fileInput);
+            photos = [...photos, ...newFiles];
+
+            if (id) {
+                const r = appData.robots.find(r => r.id === id);
+                if (r) { r.model = model; r.sn = sn; r.seriesCode = seriesCode; r.status = status; r.mfgDate = mfgDate; r.arrivalDate = arrivalDate; r.invoice = invoice; r.location = location; r.testChecklist = testChecklist; r.photos = photos; r.notes = notes; }
+            } else {
+                appData.robots.push({ id: 'r_' + Date.now(), model, sn, seriesCode, status, mfgDate, arrivalDate, invoice, location, testChecklist, photos, notes, reviews: [] });
+            }
+            saveData();
+            closeModal('modalRobot');
+            renderInventory();
+        }
+
+        function editRobot(id) {
+            const r = appData.robots.find(r => r.id === id);
+            if (!r) return;
+            openModalRobot();
+            document.getElementById('robotId').value = r.id;
+            document.getElementById('robotModel').value = r.model;
+            document.getElementById('robotSn').value = r.sn;
+            document.getElementById('robotSeriesCode').value = r.seriesCode;
+            document.getElementById('robotStatus').value = r.status;
+            document.getElementById('robotMfgDate').value = r.mfgDate || '';
+            document.getElementById('robotArrivalDate').value = r.arrivalDate || '';
+            document.getElementById('robotInvoice').value = r.invoice || '';
+            document.getElementById('robotLocation').value = r.location || '';
+            document.getElementById('robotNotes').value = r.notes || '';
+            renderRobotChecklistItems(r.testChecklist || []);
+            document.getElementById('modalRobotTitle').innerText = 'Editar Elemento';
+        }
+
+        function deleteRobot(id) {
+            if (confirm('¿Eliminar elemento?')) {
+                appData.robots = appData.robots.filter(r => r.id !== id);
+                saveData();
+                renderInventory();
+            }
+        }
+
+        // ================= PREVISUALIZADOR UNIVERSAL DE ARCHIVOS =================
+        function openGalleryViewer(files = [], title = 'Previsualización de Archivos') {
+            document.getElementById('galleryTitle').innerHTML = `<i class="fa-solid fa-folder-open text-blue-500"></i> ${escapeHtml(title)}`;
+            const container = document.getElementById('galleryContentContainer');
+            if (!container) return;
+
+            if (!files || files.length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500 italic col-span-full">No hay archivos adjuntos.</p>`;
+            } else {
+                container.innerHTML = files.map(f => {
+                    const dataUrl = typeof f === 'string' ? f : f.data;
+                    const fileName = typeof f === 'object' ? f.name : 'Archivo adjunto';
+                    const lowerName = fileName.toLowerCase();
+                    
+                    let previewElement = '';
+                    if (dataUrl.startsWith('data:image/') || lowerName.endsWith('.png') || lowerName.endsWith('.jpg') || lowerName.endsWith('.jpeg') || lowerName.endsWith('.gif') || lowerName.endsWith('.webp')) {
+                        previewElement = `<img src="${dataUrl}" class="max-h-60 max-w-full object-contain rounded">`;
+                    } else if (dataUrl.startsWith('data:application/pdf') || lowerName.endsWith('.pdf')) {
+                        previewElement = `<iframe src="${dataUrl}" class="w-full h-60 rounded border-0"></iframe>`;
+                    } else if (dataUrl.startsWith('data:video/') || lowerName.endsWith('.mp4') || lowerName.endsWith('.webm')) {
+                        previewElement = `<video src="${dataUrl}" controls class="max-h-60 max-w-full rounded"></video>`;
+                    } else {
+                        previewElement = `
+                            <div class="flex flex-col items-center justify-center p-6 text-center space-y-2">
+                                <i class="fa-solid fa-file-lines text-4xl text-blue-400"></i>
+                                <span class="text-xs text-gray-300 font-mono">${escapeHtml(fileName)}</span>
+                                <span class="text-[10px] text-gray-500">Documento adjunto disponible para descarga directa</span>
+                            </div>
+                        `;
+                    }
+
+                    return `
+                        <div class="bg-black/90 border border-darkBorder p-3 rounded-lg flex flex-col justify-between space-y-3 shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-blue-300 font-mono truncate max-w-[80%]"><i class="fa-solid fa-paperclip mr-1"></i>${escapeHtml(fileName)}</span>
+                                <a href="${dataUrl}" download="${fileName}" class="text-xs bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-2.5 py-1 rounded border border-blue-500/40 transition flex items-center gap-1"><i class="fa-solid fa-download"></i> Descargar</a>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center bg-darkCard/80 min-h-[220px] rounded border border-darkBorder/60 p-2 overflow-hidden">
+                                ${previewElement}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            openModal('modalGalleryViewer');
+        }
+
+        // UTILS
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
