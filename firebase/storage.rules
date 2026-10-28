@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userRecord() {
+      return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function activeUser() {
+      return signedIn() && userRecord().active == true;
+    }
+
+    function canEdit() {
+      return activeUser() && userRecord().role in ['admin', 'editor'];
+    }
+
+    match /attachments/{entityType}/{entityId}/{fileName} {
+      allow read: if activeUser() &&
+        userRecord().role in ['admin', 'editor', 'viewer'];
+      allow create, update: if canEdit()
+        && request.resource.size < 15 * 1024 * 1024
+        && request.resource.contentType.matches(
+          'image/.*|application/pdf|text/plain|application/msword|application/vnd.openxmlformats-officedocument.wordprocessingml.document|application/vnd.ms-excel|application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        );
+      allow delete: if canEdit();
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

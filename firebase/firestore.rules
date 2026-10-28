@@ -1,0 +1,113 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userRecord() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data;
+    }
+
+    function activeUser() {
+      return signedIn() && userRecord().rol in ['admin', 'editor', 'viewer'];
+    }
+
+    function hasRole(roleName) {
+      return activeUser() && userRecord().rol == roleName;
+    }
+
+    function canRead() {
+      return activeUser() &&
+        (userRecord().rol in ['admin', 'editor', 'viewer']);
+    }
+
+    function canEdit() {
+      return activeUser() && userRecord().rol in ['admin', 'editor'];
+    }
+
+    function isAdmin() {
+      return hasRole('admin');
+    }
+
+    match /usuarios/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Los perfiles usan los campos nombre, correo y rol. El ID del documento debe ser el UID de Authentication.
+      // El primer perfil administrador se crea manualmente en Firebase Console.
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /robots/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /demos/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /warranties/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /projects/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /folders/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /tasks/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /engineers/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /series/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /statuses/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /demoStatuses/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /warrantyStatuses/{id} {
+      allow read: if canRead();
+      allow create, update: if canEdit();
+      allow delete: if isAdmin();
+    }
+    match /movements/{id} {
+      allow read: if canRead();
+      // Movimientos de trazabilidad: la aplicación solo debe crearlos.
+      allow create: if canEdit();
+      allow update, delete: if false;
+    }
+    match /auditLogs/{id} {
+      allow read: if isAdmin();
+      allow create: if canEdit();
+      allow update, delete: if false;
+    }
+
+    // Deniega por defecto cualquier colección no definida arriba.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
