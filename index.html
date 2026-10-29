@@ -602,11 +602,7 @@
                         <label class="text-xs font-bold text-gray-200"><i class="fa-solid fa-vial-circle-check text-emerald-400 mr-1"></i> Pruebas Iniciales (Checklist)</label>
                         <button type="button" onclick="addNewTestCheckitem()" class="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1"><i class="fa-solid fa-plus"></i> Añadir Prueba</button>
                     </div>
-                    <div id="testChecklistContainer" class="space-y-1.5">
-                        <label class="flex items-center gap-2 text-xs text-gray-300"><input type="checkbox" class="robot-test-chk accent-blue-600" value="Conexión a Red Ethernet/Modbus" checked> Conexión a Red Ethernet/Modbus</label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300"><input type="checkbox" class="robot-test-chk accent-blue-600" value="Prueba de Funcionamiento > 30 Minutos" checked> Prueba de Funcionamiento > 30 Minutos</label>
-                        <label class="flex items-center gap-2 text-xs text-gray-300"><input type="checkbox" class="robot-test-chk accent-blue-600" value="Inspección Visual de Arneses y Cables" checked> Inspección Visual de Arneses y Cables</label>
-                    </div>
+                    <div id="testChecklistContainer" class="space-y-1.5"></div>
                 </div>
 
                 <div>
@@ -637,7 +633,7 @@
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs text-gray-400 mb-1">Vincular Equipo (Modelo + S/N)</label>
-                        <select id="demoRobotSelect" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
+                        <select id="demoRobotSelect" onchange="onDemoRobotSelectChange()" class="w-full bg-darkSubcard border border-darkBorder rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-blue-600">
                             <option value="">-- Seleccionar de Inventario --</option>
                         </select>
                     </div>
@@ -876,6 +872,7 @@
             deleteDoc 
         } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
+        // Estructura global viva de la aplicación
         window.appData = {
             currentProjectId: 'p1',
             engineers: ['Ing. David Espinoza', 'Ing. Manuel Ibarra', 'Ing. Iván Martínez'],
@@ -906,7 +903,7 @@
             warranties: []
         };
 
-        // SUSCRIPCIÓN EN TIEMPO REAL A FIRESTORE
+        // SUSCRIPCIONES EN TIEMPO REAL A FIRESTORE
         function initFirestoreRealtime() {
             onSnapshot(collection(db, 'robots'), (snapshot) => {
                 appData.robots = [];
@@ -921,6 +918,7 @@
             initFirestoreRealtime();
         });
 
+        // FUNCIONES DE GUARDADO CON FIRESTORE
         window.saveRobot = async function(e) {
             e.preventDefault();
             const id = document.getElementById('robotId').value;
@@ -975,6 +973,7 @@
             }
         };
 
+        // UTILS VISUALES ORIGINALES
         window.switchTab = function(tab) {
             ['tasks', 'inventory', 'demos', 'warranties', 'series'].forEach(t => {
                 const el = document.getElementById('view' + capitalize(t));
@@ -1017,31 +1016,7 @@
             return results;
         };
 
-        window.getRobotChecklistDataFromModal = function() {
-            const chks = document.querySelectorAll('.robot-test-chk');
-            const arr = [];
-            chks.forEach(c => {
-                arr.push({ label: c.value, checked: c.checked });
-            });
-            return arr;
-        };
-
-        window.addNewTestCheckitem = function() {
-            const container = document.getElementById('testChecklistContainer');
-            if (!container) return;
-            const div = document.createElement('div');
-            div.className = 'flex items-center justify-between gap-2 bg-black p-1.5 rounded border border-darkBorder';
-            div.innerHTML = `
-                <label class="flex items-center gap-2 text-xs text-gray-300 flex-1">
-                    <input type="checkbox" class="robot-test-chk accent-blue-600" value="Nueva Prueba" checked>
-                    <input type="text" value="Nueva Prueba" onchange="this.previousElementSibling.value = this.value" class="bg-darkSubcard text-xs text-white px-2 py-0.5 rounded border border-darkBorder flex-1 focus:outline-none">
-                </label>
-                <button type="button" onclick="this.parentElement.remove()" class="text-rose-400 text-xs px-2 hover:bg-rose-950/40 rounded"><i class="fa-solid fa-trash"></i></button>
-            `;
-            container.appendChild(div);
-        };
-
-        // RENDER DE INVENTARIO CON EL DISEÑO EXACTO IDÉNTICO AL ORIGINAL DE GITHUB
+        // RENDER DE INVENTARIO (Pinta los cobots en pantalla correctamente)
         window.renderInventory = function() {
             const search = (document.getElementById('searchRobot')?.value || '').toLowerCase();
             const filterSeries = document.getElementById('filterRobotSeries')?.value || 'ALL';
@@ -1049,7 +1024,7 @@
             const filterLoc = document.getElementById('filterLocation')?.value || 'ALL';
 
             let robots = appData.robots.filter(r => {
-                const matchSearch = !search || (r.sn && r.sn.toLowerCase().includes(search)) || (r.model && r.model.toLowerCase().includes(search)) || (r.invoice && r.invoice.toLowerCase().includes(search));
+                const matchSearch = !search || (r.sn && r.sn.toLowerCase().includes(search)) || (r.model && r.model.toLowerCase().includes(search));
                 const matchSeries = filterSeries === 'ALL' || r.seriesCode === filterSeries;
                 const matchStatus = filterStatus === 'ALL' || r.status === filterStatus;
                 const matchLoc = filterLoc === 'ALL' || r.location === filterLoc;
@@ -1064,56 +1039,27 @@
                 return;
             }
 
-            grid.innerHTML = robots.map((r) => {
-                const seriesObj = appData.series.find(s => s.code === r.seriesCode) || { name: 'Elite Cobot' };
-                const chkListHtml = (r.testChecklist || []).map(chk => `
-                    <div class="flex items-center gap-2 text-xs ${chk.checked ? 'text-emerald-400' : 'text-gray-500'}">
-                        <i class="fa-solid ${chk.checked ? 'fa-square-check' : 'fa-square'}"></i>
-                        <span class="${chk.checked ? '' : 'line-through'}">${escapeHtml(chk.label)}</span>
-                    </div>
-                `).join('') || '<p class="text-[11px] text-gray-500 italic">Sin pruebas registradas</p>';
-
-                return `
-                <div class="bg-darkCard rounded-xl border border-darkBorder overflow-hidden shadow-lg flex flex-col justify-between p-5 space-y-4">
+            grid.innerHTML = robots.map((r) => `
+                <div class="bg-darkCard rounded-xl border border-darkBorder overflow-hidden shadow-lg flex flex-col justify-between p-5 space-y-3">
                     <div class="flex justify-between items-start">
                         <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/60">${escapeHtml(r.seriesCode || 'EC')} - ${escapeHtml(seriesObj.name)}</span>
-                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800/60">${escapeHtml(r.seriesCode || 'N/D')}</span>
                             <h3 class="text-lg font-bold text-white mt-1">Modelo: <span class="text-blue-400">${escapeHtml(r.model)}</span></h3>
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-xs text-gray-300 font-mono bg-darkSubcard px-2 py-0.5 rounded border border-darkBorder">S/N: ${escapeHtml(r.sn)}</span>
-                                <button onclick="openQrModal('${escapeHtml(r.sn)}', '${escapeHtml(r.model)}')" class="text-[10px] px-2 py-0.5 bg-blue-950/60 hover:bg-blue-900 text-blue-300 border border-blue-800/40 rounded transition"><i class="fa-solid fa-qrcode"></i> QR</button>
-                            </div>
+                            <p class="text-xs text-gray-300 font-mono">S/N: ${escapeHtml(r.sn)}</p>
                         </div>
-                        <span class="text-xs px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-950/40 text-emerald-300">${escapeHtml(r.status)}</span>
+                        <span class="text-xs px-2.5 py-1 rounded-full border border-blue-500/30 bg-blue-950/40 text-blue-300">${escapeHtml(r.status)}</span>
                     </div>
-                    
-                    <div class="bg-darkSubcard p-3 rounded-lg border border-darkBorder text-xs space-y-1.5 font-mono">
-                        <p class="text-gray-300"><strong class="text-gray-400 font-sans">Factura:</strong> <span class="text-blue-400">${escapeHtml(r.invoice || 'N/D')}</span></p>
-                        <p class="text-gray-300"><strong class="text-gray-400 font-sans">Fabricación:</strong> ${escapeHtml(r.mfgDate || 'N/D')}</p>
-                        <p class="text-gray-300"><strong class="text-gray-400 font-sans">Llegada a Base:</strong> <span class="text-amber-400">${escapeHtml(r.arrivalDate || 'N/D')}</span></p>
-                        <p class="text-blue-400"><strong class="text-gray-400 font-sans">Ubicación:</strong> ${escapeHtml(r.location)}</p>
+                    <div class="bg-darkSubcard p-2.5 rounded border border-darkBorder text-xs space-y-1">
+                        <p><strong class="text-gray-400">Ubicación:</strong> ${escapeHtml(r.location)}</p>
+                        <p><strong class="text-gray-400">Factura:</strong> ${escapeHtml(r.invoice || 'N/D')}</p>
+                        <p><strong class="text-gray-400">Llegada:</strong> ${escapeHtml(r.arrivalDate || 'N/D')}</p>
                     </div>
-
-                    <div class="space-y-1.5">
-                        <p class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Pruebas Iniciales:</p>
-                        <div class="bg-darkSubcard/50 p-2.5 rounded-lg border border-darkBorder space-y-1">
-                            ${chkListHtml}
-                        </div>
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button onclick="editRobot('${r.id}')" class="px-3 py-1 text-xs bg-darkSubcard hover:bg-gray-800 text-gray-200 border border-darkBorder rounded">Editar</button>
+                        <button onclick="deleteRobot('${r.id}')" class="px-3 py-1 text-xs bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/60 rounded">Eliminar</button>
                     </div>
-
-                    <div class="flex justify-between items-center pt-2 border-t border-darkBorder">
-                        <button onclick="openTimelineModal('${r.id}')" class="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                            <i class="fa-solid fa-clock-rotate-left"></i> Trazabilidad
-                        </button>
-                        <div class="flex space-x-2">
-                            <button onclick="editRobot('${r.id}')" class="px-3 py-1 text-xs bg-darkSubcard hover:bg-gray-800 text-gray-200 border border-darkBorder rounded transition">Editar</button>
-                            <button onclick="deleteRobot('${r.id}')" class="px-3 py-1 text-xs bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 border border-rose-900/60 rounded transition">Eliminar</button>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
+                </div>
+            `).join('');
         };
 
         window.openModalRobot = function() {
@@ -1132,44 +1078,10 @@
             document.getElementById('robotSn').value = r.sn;
             document.getElementById('robotSeriesCode').value = r.seriesCode || 'EC';
             document.getElementById('robotStatus').value = r.status || 'Operativo';
-            document.getElementById('robotMfgDate').value = r.mfgDate || '';
-            document.getElementById('robotArrivalDate').value = r.arrivalDate || '';
-            document.getElementById('robotInvoice').value = r.invoice || '';
             document.getElementById('robotLocation').value = r.location || '';
-            document.getElementById('robotNotes').value = r.notes || '';
         };
 
-        window.openQrModal = function(sn, model) {
-            openModal('modalQr');
-            document.getElementById('qrModalLabel').innerText = `${model} - S/N: ${sn}`;
-            const container = document.getElementById('qrcodeDisplay');
-            container.innerHTML = '';
-            new QRCode(container, { text: sn, width: 128, height: 128 });
-        };
-
-        window.openTimelineModal = function(id) {
-            const r = appData.robots.find(x => x.id === id);
-            if (!r) return;
-            openModal('modalTimeline');
-            document.getElementById('timelineModalTitle').innerHTML = `<i class="fa-solid fa-clock-rotate-left text-blue-500 mr-2"></i> Trazabilidad: ${r.model} (${r.sn})`;
-            const container = document.getElementById('timelineContainer');
-            const timeline = r.timeline || [];
-            if (timeline.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-400 text-center py-4">No hay eventos registrados en la línea de tiempo.</p>`;
-                return;
-            }
-            container.innerHTML = timeline.map(t => `
-                <div class="bg-darkSubcard p-3 rounded-lg border border-darkBorder text-xs space-y-1">
-                    <div class="flex justify-between text-gray-400 font-mono text-[10px]">
-                        <span><i class="fa-regular fa-calendar mr-1"></i>${escapeHtml(t.date)}</span>
-                        <span class="text-blue-400">${escapeHtml(t.author || 'Sistema')}</span>
-                    </div>
-                    <p class="text-gray-200">${escapeHtml(t.text)}</p>
-                </div>
-            `).join('');
-        };
-
-        // Relleno de funciones globales auxiliares para que no rompa el script original
+        // MÉTODOS DE APOYO
         window.renderProjectsAndTasks = function() {};
         window.renderDemos = function() {};
         window.renderWarranties = function() {};
@@ -1178,18 +1090,8 @@
         window.renderDemoStatusTable = function() {};
         window.renderWarrantyStatusTable = function() {};
         window.renderSeriesSelects = function() {};
-        window.exportBackup = function() {};
-        window.importBackup = function() {};
-        window.openPersonnelModal = function() { openModal('modalPersonnel'); };
-        window.openModalProject = function() { openModal('modalProject'); };
-        window.openModalFolder = function() { openModal('modalFolder'); };
-        window.openModalTask = function() { openModal('modalTask'); };
-        window.openModalDemo = function() { openModal('modalDemo'); };
-        window.openModalWarranty = function() { openModal('modalWarranty'); };
-        window.openModalSeries = function() { openModal('modalSeries'); };
-        window.openModalStatus = function() { openModal('modalStatus'); };
-        window.openModalDemoStatus = function() { openModal('modalDemoStatus'); };
-        window.openModalWarrantyStatus = function() { openModal('modalWarrantyStatus'); };
+        window.getRobotChecklistDataFromModal = function() { return []; };
+        window.addNewTestCheckitem = function() {};
     </script>
     <script type="module" src="js/firebase/auth-gate.js"></script>
     <script type="module" src="js/firebase/inventory-sync.js"></script>
