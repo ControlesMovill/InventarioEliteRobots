@@ -869,6 +869,35 @@
         const STORAGE_KEY = 'pendientes_controles_v7_0';
 
         let appData = loadData();
+        window.__getDefaultInventoryData = () => {
+    const data = getDefaultData();
+
+    // No importar registros ficticios al inventario real.
+    data.projects = [];
+    data.folders = [];
+    data.tasks = [];
+    data.robots = [];
+    data.demos = [];
+    data.warranties = [];
+    data.currentProjectId = null;
+
+    return data;
+};
+
+window.__replaceInventoryData = (data) => {
+    appData = data;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+    renderProjectsAndTasks();
+    renderSeriesSelects();
+    renderInventory();
+    renderDemos();
+    renderWarranties();
+    renderSeriesTable();
+    renderStatusTable();
+    renderDemoStatusTable();
+    renderWarrantyStatusTable();
+};
 
         function loadData() {
             const stored = localStorage.getItem(STORAGE_KEY);
@@ -942,12 +971,18 @@
         }
 
         function saveData() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-            } catch(err) {
-                alert('Alerta: El almacenamiento local está lleno.');
-            }
-        }
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+
+        window.dispatchEvent(
+            new CustomEvent('movill:inventory-changed', {
+                detail: appData
+            })
+        );
+    } catch (err) {
+        alert('Error al guardar los datos: ' + err.message);
+    }
+}
 
         // RESPALDO JSON
         function exportBackup() {
@@ -2440,5 +2475,6 @@
         }
     </script>
     <script type="module" src="js/firebase/auth-gate.js"></script>
+    <script type="module" src="js/firebase/inventory-sync.js"></script>
 </body>
 </html>
