@@ -1,12 +1,11 @@
-MOVILL INVENTARIO — LOGIN INTEGRADO AL HTML ORIGINAL
+MOVILL INVENTARIO - INTERFAZ ORIGINAL + FIREBASE
 
-Esta versión integra la pantalla de inicio de sesión directamente en el HTML original de 150 KB, conservando sus módulos y funciones.
+Esta versión conserva el index.html completo de la interfaz original (formularios, modelos, estatus, checklist, evidencias, trazabilidad, tarjetas, filtros y modales).
 
-CONFIGURACIÓN:
-1. Copia firebase/firebase-config.example.js como firebase/firebase-config.js.
-2. Pega los valores de configuración web de tu proyecto Firebase en firebase-config.js. Debe exportar: export const firebaseConfig = {...};
-3. En Firebase Authentication, habilita Email/Password y crea el usuario.
-4. En Firestore, crea usuarios/{UID de Authentication} con campos nombre, correo y rol. El rol debe ser admin, editor o viewer.
-5. Sirve esta carpeta por HTTP/HTTPS (por ejemplo, Firebase Hosting o servidor local). No abras index.html con file://.
+Firebase: la colección robots es la fuente de verdad para el inventario de cobots. La lectura inicia después de validar el usuario. Alta, edición y eliminación escriben directamente en robots.
 
-IMPORTANTE: Esta entrega integra el LOGIN y valida el perfil de usuario en Firestore. Los datos del inventario aún se guardan en localStorage; no hay sincronización multiusuario de inventario todavía. No publiques reglas de Firestore sin revisar las reglas actuales de tu proyecto.
+No se modifica ni elimina ningún documento existente en Firestore. No se crea inventarios/principal.
+
+IMPORTANTE: publica en Firebase Console las reglas de firebase/firestore.rules. Sirve el proyecto desde GitHub Pages/Firebase Hosting/servidor web, no con file://. Conserva firebase/firebase-config.js.
+
+Nota: las secciones de proyectos/tareas/demos/garantías mantienen su interfaz original, pero esta integración de sincronización directa corresponde a la colección robots.

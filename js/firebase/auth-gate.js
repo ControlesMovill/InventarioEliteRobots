@@ -28,10 +28,29 @@ function showGate() {
 function showApp(user, profile) {
   gate.classList.add('hidden');
   logoutButton.classList.remove('hidden');
-  emailBadge.textContent = profile.nombre || user.email || 'Usuario';
-  roleBadge.textContent = `Rol: ${profile.rol}`;
-  document.body.dataset.userRole = profile.rol;
+  const role = String(profile.rol ?? profile.Rol ?? '').toLowerCase();
+  emailBadge.textContent = profile.nombre || profile.Nombre || user.email || 'Usuario';
+  roleBadge.textContent = `Rol: ${role}`;
+  document.body.dataset.userRole = role;
   document.body.dataset.userUid = user.uid;
+  window.dispatchEvent(new CustomEvent('movill:authenticated', { detail: { user, profile } }));
+}
+
+async function readUserProfile(uid) {
+  // Compatibilidad con ambas convenciones que se han utilizado en el proyecto.
+  // No crea documentos ni modifica perfiles existentes.
+  const paths = [ ['Usuarios', uid], ['usuarios', uid] ];
+  let lastError = null;
+  for (const [collectionName, documentId] of paths) {
+    try {
+      const snapshot = await getDoc(doc(db, collectionName, documentId));
+      if (snapshot.exists()) return snapshot.data();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (lastError) throw lastError;
+  return null;
 }
 
 form.addEventListener('submit', async (event) => {
@@ -70,6 +89,7 @@ logoutButton.addEventListener('click', async () => {
 onAuthStateChanged(auth, async (user) => {
   clearMessage();
   if (!user) {
+    window.dispatchEvent(new Event('movill:unauthenticated'));
     showGate();
     return;
   }
@@ -77,15 +97,14 @@ onAuthStateChanged(auth, async (user) => {
   loginButton.disabled = true;
   loginButton.textContent = 'Validando permisos…';
   try {
-    const profileRef = doc(db, 'usuarios', user.uid);
-    const profileSnapshot = await getDoc(profileRef);
-    if (!profileSnapshot.exists()) {
+    const profile = await readUserProfile(user.uid);
+    if (!profile) {
       await signOut(auth);
       showGate();
-      showMessage('Tu cuenta inició sesión, pero no tiene perfil en Firestore. Crea el documento usuarios/' + user.uid + ' con los campos nombre, correo y rol.');
+      showMessage('Tu cuenta inició sesión, pero no se encontró su perfil. Debe existir un documento Usuarios/' + user.uid + ' o usuarios/' + user.uid + ' con los campos Nombre/Correo/Rol o nombre/correo/rol.');
       return;
     }
-    const profile = profileSnapshot.data();
+    profile.rol = String(profile.rol ?? profile.Rol ?? '').toLowerCase();
     if (!['admin', 'editor', 'viewer'].includes(profile.rol)) {
       await signOut(auth);
       showGate();
@@ -96,7 +115,7 @@ onAuthStateChanged(auth, async (user) => {
   } catch (error) {
     await signOut(auth).catch(() => {});
     showGate();
-    showMessage('No se pudieron validar tus permisos en Firestore. Verifica que exista usuarios/' + user.uid + ' y que las reglas permitan leer tu propio perfil. Detalle: ' + (error.code || error.message || 'error desconocido'));
+    showMessage('No se pudieron validar tus permisos en Firestore. Verifica que las reglas permitan leer tu perfil en Usuarios/' + user.uid + ' o usuarios/' + user.uid + '. Detalle: ' + (error.code || error.message || 'error desconocido'));
   } finally {
     loginButton.disabled = false;
     loginButton.textContent = 'Iniciar sesión';

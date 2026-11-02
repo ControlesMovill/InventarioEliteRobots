@@ -62,3 +62,10 @@ existe y está activo.
 **Alcance:** los datos de inventario todavía se guardan en `localStorage`. No uses esta
 etapa como versión multiusuario de producción; la sincronización de colecciones y las
 restricciones de edición por rol son el siguiente paso.
+
+
+## Estado de integración (versión corregida)
+
+La colección `robots` ya se consulta en tiempo real y el alta, edición y eliminación escriben directamente en esa colección. La suscripción inicia después de que `auth-gate.js` valida el usuario. No se utiliza `localStorage` como fuente de datos y no se crea `inventarios/principal`.
+
+Las secciones de proyectos, tareas, demos y garantías aún no están conectadas a sus colecciones; no deben considerarse sincronizadas en esta entrega.
